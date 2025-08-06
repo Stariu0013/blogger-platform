@@ -26,7 +26,7 @@ export const inputResultValidationMiddleware = (
         .array({ onlyFirstError: true });
 
     if (errors.length > 0) {
-        res.status(HttpStatuses.BAD_REQUEST).json({ errorMessages: errors });
+        res.status(HttpStatuses.BAD_REQUEST).json({ errorsMessages: errors });
         return;
     }
 
