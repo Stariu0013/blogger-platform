@@ -31,7 +31,6 @@ class PostsRepository {
         targetPost.title = post.title;
         targetPost.content = post.content;
         targetPost.blogId = post.blogId;
-        targetPost.blogName = post.blogName;
         targetPost.shortDescription = post.shortDescription;
 
         return;
