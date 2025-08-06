@@ -13,6 +13,7 @@ class PostsRepository {
     createPost(post: PostInputModel) {
         const newPost = {
             ...post,
+            blogName: post.title,
             id: (db.posts.length + 1).toString(),
         }
         db.posts.push(newPost);
@@ -30,6 +31,7 @@ class PostsRepository {
         targetPost.title = post.title;
         targetPost.content = post.content;
         targetPost.blogId = post.blogId;
+        targetPost.blogName = post.blogName;
         targetPost.shortDescription = post.shortDescription;
 
         return;
