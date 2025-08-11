@@ -10,5 +10,6 @@ export const mapToPostViewModal = (input: WithId<PostInputModel>): PostModel => 
         title: input.title,
         shortDescription: input.shortDescription,
         content: input.content,
+        createdAt: input.createdAt,
     }
 };
