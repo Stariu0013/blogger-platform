@@ -1,9 +1,9 @@
-import {db} from "../../db";
+import {blogsCollection, postsCollection} from "../../core/db/mongo.db";
 
 class TestingRepository {
-    deleteAllData() {
-        db.posts = [];
-        db.blogs = [];
+    async deleteAllData() {
+        await postsCollection.deleteMany();
+        await blogsCollection.deleteMany();
     }
 }
 

@@ -5,7 +5,8 @@
   "scripts": {
     "watch": "tsc -w",
     "dev": "nodemon --inspect dist/index.js",
-    "jest": "jest -i",
+    "jest": "jest -i --detectOpenHandles",
+    "jest:coverage": "jest -i --coverage",
     "lint": "eslint --fix .",
     "format": "prettier --write ."
   },
@@ -14,8 +15,10 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "dotenv": "^17.2.1",
     "express": "^5.1.0",
-    "express-validator": "^7.2.1"
+    "express-validator": "^7.2.1",
+    "mongodb": "^6.18.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.27.0",

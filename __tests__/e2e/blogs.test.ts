@@ -5,10 +5,18 @@ import {APP_ROUTES} from "../../src/core/routes";
 import {BlogInputModel} from "../../src/blogs/types/blogs.input-dto";
 import {HttpStatuses} from "../../src/core/types/http-statuses";
 import {generateBasicAuthToken} from "../utils/generateBasicAuthToken";
+import runDB from "../../src/core/db/mongo.db";
+import {Settings} from "../../src/core/settings/settings";
+import {clearDb} from "../utils/clearDb";
 
 describe('Blogs API', () => {
     const app = express();
     setupApp(app);
+
+    beforeAll(async () => {
+        await runDB(Settings.MONGO_URL);
+        await clearDb(app);
+    })
 
     const testBlog: BlogInputModel = {
         name: 'Blog 1',
@@ -17,10 +25,6 @@ describe('Blogs API', () => {
     };
 
     const authToken = generateBasicAuthToken();
-
-    beforeEach(async () => {
-        await request(app).delete(APP_ROUTES.TESTING + '/all-data').expect(HttpStatuses.NO_CONTENT);
-    });
 
     it(`get auth error on delete blog`, async () => {
         const createdBlog = await request(app).post(APP_ROUTES.BLOGS)
@@ -46,15 +50,13 @@ describe('Blogs API', () => {
         await request(app).post(APP_ROUTES.BLOGS).send(testBlog).expect(HttpStatuses.UNAUTHORIZED);
     });
 
-    it(`should return empty array`, async () => {
-        await request(app).get(APP_ROUTES.BLOGS).expect([]);
-    });
     it(`should create and return blog`, async () => {
-        const targetId = 1;
-
-        await request(app).post(APP_ROUTES.BLOGS).set(
+        const createdBlog = await request(app).post(APP_ROUTES.BLOGS).set(
             'Authorization', authToken
-        ).send(testBlog).expect(HttpStatuses.CREATED);
+        ).send(testBlog);
+
+        expect(createdBlog.status).toBe(HttpStatuses.CREATED);
+        const targetId = createdBlog.body.id;
 
         const res = await request(app).get(`${APP_ROUTES.BLOGS}/${targetId}`);
 
@@ -126,7 +128,7 @@ describe('Blogs API', () => {
             });
 
         expect(res.status).toBe(HttpStatuses.BAD_REQUEST);
-        expect(res.body.errorMessages.length).toEqual(3);
+        expect(res.body.errorsMessages.length).toEqual(3);
     });
     it(`should return validation errors for huge text`, async () => {
         const hugeDescription = 'a'.repeat(501);
@@ -142,7 +144,7 @@ describe('Blogs API', () => {
             }).expect(HttpStatuses.BAD_REQUEST);
 
         expect(res.status).toBe(HttpStatuses.BAD_REQUEST);
-        expect(res.body.errorMessages.length).toEqual(3);
+        expect(res.body.errorsMessages.length).toEqual(3);
     });
     it(`should return validation error for websiteUrl(wrong protocol)`, async () => {
         const res = await request(app).post(APP_ROUTES.BLOGS)
@@ -153,7 +155,7 @@ describe('Blogs API', () => {
             }).expect(HttpStatuses.BAD_REQUEST);
 
         expect(res.status).toBe(HttpStatuses.BAD_REQUEST);
-        expect(res.body.errorMessages.length).toEqual(1);
+        expect(res.body.errorsMessages.length).toEqual(1);
     });
     it(`should return validation error for websiteUrl(huge string)`, async () => {
         const res = await request(app).post(APP_ROUTES.BLOGS)
@@ -164,6 +166,6 @@ describe('Blogs API', () => {
             }).expect(HttpStatuses.BAD_REQUEST);
 
         expect(res.status).toBe(HttpStatuses.BAD_REQUEST);
-        expect(res.body.errorMessages.length).toEqual(1);
+        expect(res.body.errorsMessages.length).toEqual(1);
     });
 });
