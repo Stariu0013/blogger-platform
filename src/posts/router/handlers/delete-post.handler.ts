@@ -5,14 +5,14 @@ import {HttpStatuses} from "../../../core/types/http-statuses";
 import {PostInputModel} from "../../types/post-input.model";
 import PostsRepository from "../../repositories/posts.repository";
 
-export const deletePostHandler = (
+export const deletePostHandler = async (
     req: Request<{id: string}, PostInputModel, {}, {}>,
     res: Response
 ) => {
     try {
         const {id} = req.params;
 
-        const post = PostsRepository.getPostById(id);
+        const post = await PostsRepository.getPostById(id);
 
         if (!post) {
             res.status(HttpStatuses.NOT_FOUND).send(createErrorMessage(

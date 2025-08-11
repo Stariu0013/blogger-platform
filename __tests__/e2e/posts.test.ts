@@ -86,7 +86,9 @@ describe('Posts API', () => {
 
         expect(createdPost.status).toBe(HttpStatuses.CREATED);
 
-        const res = await request(app).get(`${APP_ROUTES.POSTS}/${INCORRECT_ID}`);
+        const res = await request(app).delete(`${APP_ROUTES.POSTS}/${INCORRECT_ID}`).set(
+            'Authorization', authToken
+        );
         expect(res.status).toBe(HttpStatuses.NOT_FOUND);
     });
     it(`should delete first blog`, async () => {
