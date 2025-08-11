@@ -9,8 +9,13 @@ export const createBlogHandler = async (
     res: Response,
 ) => {
     const blog = req.body;
+    const newBlog = {
+        ...blog,
+        createdAt: new Date().toISOString(),
+        isMembership: false,
+    };
 
-    const responseBlog = await BlogsRepository.createBlog(blog);
+    const responseBlog = await BlogsRepository.createBlog(newBlog);
     const mappedBlog = mapToBlogViewModal(responseBlog);
 
     res.status(HttpStatuses.CREATED).send(mappedBlog);
