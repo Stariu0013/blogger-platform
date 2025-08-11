@@ -21,7 +21,9 @@ export const deleteBlogHandler = (
                         message: "Blog not found"
                     }
                 ]
-            ))
+            ));
+
+            return;
         }
 
         BlogsRepository.deleteBlog(id);

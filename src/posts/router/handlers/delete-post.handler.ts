@@ -22,7 +22,9 @@ export const deletePostHandler = (
                         message: "Post not found"
                     }
                 ]
-            ))
+            ));
+
+            return;
         }
 
         BlogsRepository.deletePost(id);
