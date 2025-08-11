@@ -20,6 +20,7 @@ class PostsRepository {
         const newPost = {
             ...post,
             blogName: post.title,
+            createdAt: new Date().toISOString(),
         };
 
         const insertResult = await postsCollection.insertOne(newPost);
