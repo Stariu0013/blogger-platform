@@ -7,17 +7,21 @@ import {mapToBlogViewModal} from "../mapper/map-to-blog-view-modal";
 export const getBlogByIdHandler = async (
     req: Request<{id: string}, BlogModel, {}, {}>, res: Response
 ) => {
-    const {id} = req.params;
+    try {
+        const {id} = req.params;
 
-    const blog = await BlogsRepository.getBlogById(id);
+        const blog = await BlogsRepository.getBlogById(id);
 
-    if (!blog) {
-        res.sendStatus(HttpStatuses.NOT_FOUND);
+        if (!blog) {
+            res.sendStatus(HttpStatuses.NOT_FOUND);
 
-        return;
+            return;
+        }
+
+        const mappedBlog = mapToBlogViewModal(blog);
+
+        res.status(HttpStatuses.OK).send(mappedBlog);
+    } catch (e) {
+        res.sendStatus(HttpStatuses.INTERNAL_SERVER_ERROR);
     }
-
-    const mappedBlog = mapToBlogViewModal(blog);
-
-    res.status(HttpStatuses.OK).send(mappedBlog);
 };

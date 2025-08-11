@@ -8,22 +8,26 @@ export const deleteBlogHandler = (
     req: Request<{id: string}, BlogModel, {}, {}>,
     res: Response
 ) => {
-    const {id} = req.params;
+    try {
+        const {id} = req.params;
 
-    const blog = BlogsRepository.getBlogById(id);
+        const blog = BlogsRepository.getBlogById(id);
 
-    if (!blog) {
-        res.status(HttpStatuses.NOT_FOUND).send(createErrorMessage(
-            [
-                {
-                    field: "blog",
-                    message: "Blog not found"
-                }
-            ]
-        ))
+        if (!blog) {
+            res.status(HttpStatuses.NOT_FOUND).send(createErrorMessage(
+                [
+                    {
+                        field: "blog",
+                        message: "Blog not found"
+                    }
+                ]
+            ))
+        }
+
+        BlogsRepository.deleteBlog(id);
+
+        res.sendStatus(HttpStatuses.NO_CONTENT);
+    } catch (e) {
+        res.sendStatus(HttpStatuses.INTERNAL_SERVER_ERROR);
     }
-
-    BlogsRepository.deleteBlog(id);
-
-    res.sendStatus(HttpStatuses.NO_CONTENT);
 };
