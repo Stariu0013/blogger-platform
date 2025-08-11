@@ -8,5 +8,7 @@ export const mapToBlogViewModal = (input: WithId<BlogInputModel>): BlogModel => 
         name: input.name,
         websiteUrl: input.websiteUrl,
         description: input.description,
+        isMembership: input.isMembership,
+        createdAt: input.createdAt,
     }
 };
