@@ -20,8 +20,6 @@ export const isIdValid = param('id')
     .isString().withMessage('Id must be a string')
     .isLength({ min: 1 })
     .withMessage('ID must not be empty')
-    .isNumeric()
-    .withMessage('ID must be a numeric string')
 ;
 
 export const validateBlogsInputData = [

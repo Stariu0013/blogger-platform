@@ -1,49 +1,60 @@
-import {db} from "../../db";
 import {PostInputModel} from "../types/post-input.model";
+import {postsCollection} from "../../core/db/mongo.db";
+import {PostModel} from "../types/posts.dto";
+import {ObjectId, WithId} from "mongodb";
 
 class PostsRepository {
-    getAllPosts() {
-        return db.posts;
+    async getAllPosts(): Promise<WithId<PostModel>[]> {
+        const res = await postsCollection.find().toArray();
+        console.log(res);
+        return res;
     }
 
-    getPostById(id: string) {
-        return db.posts.find(post => post.id === id) ?? null;
+    async getPostById(id: string): Promise<WithId<PostModel> | null> {
+        return postsCollection.findOne({
+            _id: new ObjectId(id)
+        });
     }
 
-    createPost(post: PostInputModel) {
+    async createPost(post: PostInputModel): Promise<WithId<PostModel>> {
         const newPost = {
             ...post,
             blogName: post.title,
-            id: (db.posts.length + 1).toString(),
-        }
-        db.posts.push(newPost);
+        };
 
-        return newPost;
+        const insertResult = await postsCollection.insertOne(newPost);
+
+        return {
+            ...newPost,
+            _id: insertResult.insertedId,
+        };
     }
 
-    updatePost(id: string, post: PostInputModel) {
-        const targetPost = db.posts.find(post => post.id === id);
+    async updatePost(id: string, post: PostInputModel): Promise<void> {
+        const updateResult = await postsCollection.updateOne({
+            _id: new ObjectId(id),
+        }, {
+            $set: {
+                ...post
+            }
+        })
 
-        if (!targetPost) {
+        if (updateResult.matchedCount < 1) {
             throw new Error("Post not found");
         }
-
-        targetPost.title = post.title;
-        targetPost.content = post.content;
-        targetPost.blogId = post.blogId;
-        targetPost.shortDescription = post.shortDescription;
 
         return;
     }
 
-    deletePost(id: string) {
-        const targetPostIndex = db.posts.findIndex(post => post.id === id);
+    async deletePost(id: string): Promise<void> {
+        const deleteResult = await postsCollection.deleteOne({
+            _id: new ObjectId(id),
+        });
 
-        if (targetPostIndex === -1) {
+        if (deleteResult.deletedCount < 1) {
             throw new Error("Post not found");
         }
 
-        db.posts.splice(targetPostIndex, 1);
         return;
     }
 }

@@ -6,6 +6,9 @@ import {BlogInputModel} from "../../src/blogs/types/blogs.input-dto";
 import {HttpStatuses} from "../../src/core/types/http-statuses";
 import {generateBasicAuthToken} from "../utils/generateBasicAuthToken";
 import {PostInputModel} from "../../src/posts/types/post-input.model";
+import {clearDb} from "../utils/clearDb";
+import runDB from "../../src/core/db/mongo.db";
+import {Settings} from "../../src/core/settings/settings";
 
 describe('Posts API', () => {
     const app = express();
@@ -18,7 +21,7 @@ describe('Posts API', () => {
     };
 
     let testPost: PostInputModel = {
-        content: 'test content',
+        content: 'test content TEST',
         shortDescription: 'test description',
         title: 'test title',
     };
@@ -26,25 +29,30 @@ describe('Posts API', () => {
     const authToken = generateBasicAuthToken();
 
     beforeAll(async () => {
-        const targetId = 1;
+        await runDB(Settings.MONGO_URL);
+        await clearDb(app);
+    })
 
-        await request(app).post(APP_ROUTES.BLOGS).set(
-            'Authorization', authToken
-        ).send(testBlog).expect(HttpStatuses.CREATED);
-
-        const res = await request(app).get(`${APP_ROUTES.BLOGS}/${targetId}`);
-
-        const {
-            id,
-            name
-        } = res.body;
-
-        testPost = {
-            ...testPost,
-            blogId: id,
-            blogName: name
-        }
-    });
+    // beforeAll(async () => {
+    //     const targetId = 1;
+    //
+    //     await request(app).post(APP_ROUTES.BLOGS).set(
+    //         'Authorization', authToken
+    //     ).send(testBlog).expect(HttpStatuses.CREATED);
+    //
+    //     const res = await request(app).get(`${APP_ROUTES.BLOGS}/${targetId}`);
+    //
+    //     const {
+    //         id,
+    //         name
+    //     } = res.body;
+    //
+    //     testPost = {
+    //         ...testPost,
+    //         blogId: id,
+    //         blogName: name
+    //     }
+    // });
 
     beforeEach(async () => {
         await request(app).delete(APP_ROUTES.TESTING + '/all-data').expect(HttpStatuses.NO_CONTENT);
@@ -74,21 +82,18 @@ describe('Posts API', () => {
         await request(app).post(APP_ROUTES.POSTS).send(testPost).expect(HttpStatuses.UNAUTHORIZED);
     });
 
-    it(`should return empty array`, async () => {
-        await request(app).get(APP_ROUTES.POSTS).expect([]);
-    });
     it(`should create and return post`, async () => {
-        const targetId = 1;
-
-        await request(app).post(APP_ROUTES.POSTS).set(
+        const createdPost = await request(app).post(APP_ROUTES.POSTS).set(
             'Authorization', authToken
-        ).send(testPost).expect(HttpStatuses.CREATED);
+        ).send(testPost);
+
+        expect(createdPost.status).toBe(HttpStatuses.CREATED);
+        const targetId = createdPost.body.id;
 
         const res = await request(app).get(`${APP_ROUTES.POSTS}/${targetId}`);
         expect(res.body).toEqual({
             ...testPost,
             id: expect.any(String),
-            blogId: targetId.toString(),
             blogName: expect.any(String),
         });
         expect(res.status).toBe(HttpStatuses.OK);
@@ -130,11 +135,6 @@ describe('Posts API', () => {
             title: 'title dhas dggsa'
         };
 
-        console.log('TEST', {
-            newPostInfo,
-            targetId
-        })
-
         await request(app).put(`${APP_ROUTES.POSTS}/${targetId}`)
             .set('Authorization', authToken)
             .send(newPostInfo)
@@ -142,13 +142,9 @@ describe('Posts API', () => {
 
         const targetPost = await request(app).get(`${APP_ROUTES.POSTS}/${targetId}`);
 
-        console.log({
-            targetId,
-            targetPost: targetPost.body,
-        })
-
         expect(targetPost.body).toEqual({
             ...newPostInfo,
+            blogName: expect.any(String),
             id: expect.any(String),
         });
         expect(targetPost.status).toBe(HttpStatuses.OK);

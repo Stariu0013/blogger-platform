@@ -9,10 +9,6 @@ export const setupApp = (app: Express) => {
 
     const PORT = process.env.PORT || 3000;
 
-    app.listen(3000, () => {
-        console.log(`App is running on port ${PORT}`)
-    });
-
     app.get('/', (req: Request, res: Response) => {
         res.send('Hello World');
     });
