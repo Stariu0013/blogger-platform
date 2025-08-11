@@ -2,10 +2,12 @@ import {BlogInputModel} from "../types/blogs.input-dto";
 import {BlogModel} from "../types/blogs.dto";
 import {blogsCollection} from "../../core/db/mongo.db";
 import {ObjectId, WithId} from "mongodb";
+import {mapToBlogViewModal} from "../router/mapper/map-to-blog-view-modal";
 
 class BlogsRepository {
-    async getAllBlogs(): Promise<WithId<BlogModel>[]> {
-        return blogsCollection.find().toArray();
+    async getAllBlogs(): Promise<BlogModel[]> {
+        const blogs = await blogsCollection.find().toArray();
+        return blogs.map(blog => mapToBlogViewModal(blog));
     }
 
     async getBlogById(id: string): Promise<WithId<BlogModel> | null> {

@@ -2,12 +2,13 @@ import {PostInputModel} from "../types/post-input.model";
 import {postsCollection} from "../../core/db/mongo.db";
 import {PostModel} from "../types/posts.dto";
 import {ObjectId, WithId} from "mongodb";
+import {mapToPostViewModal} from "../router/mapper/map-to-post-view-modal";
 
 class PostsRepository {
-    async getAllPosts(): Promise<WithId<PostModel>[]> {
-        const res = await postsCollection.find().toArray();
-        console.log(res);
-        return res;
+    async getAllPosts(): Promise<PostModel[]> {
+        const posts = await postsCollection.find().toArray();
+
+        return posts.map(post => mapToPostViewModal(post));
     }
 
     async getPostById(id: string): Promise<WithId<PostModel> | null> {
