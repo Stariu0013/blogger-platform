@@ -78,6 +78,17 @@ describe('Posts API', () => {
         });
         expect(res.status).toBe(HttpStatuses.OK);
     });
+    it(`should create and return error for incorrect id`, async () => {
+        const INCORRECT_ID = "63189b06003380064c4193be";
+        const createdPost = await request(app).post(APP_ROUTES.POSTS).set(
+            'Authorization', authToken
+        ).send(testPost);
+
+        expect(createdPost.status).toBe(HttpStatuses.CREATED);
+
+        const res = await request(app).get(`${APP_ROUTES.POSTS}/${INCORRECT_ID}`);
+        expect(res.status).toBe(HttpStatuses.NOT_FOUND);
+    });
     it(`should delete first blog`, async () => {
         const firstCreatedBlog = await request(app).post(APP_ROUTES.POSTS)
             .set('Authorization', authToken)
