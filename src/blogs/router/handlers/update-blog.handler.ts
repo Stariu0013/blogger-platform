@@ -3,7 +3,7 @@ import {BlogInputModel} from "../../types/blogs.input-dto";
 import {HttpStatuses} from "../../../core/types/http-statuses";
 import BlogsRepository from "../../repositories/blogs.repository";
 
-export const updateBlogHandler = (
+export const updateBlogHandler = async (
     req: Request<{id: string}, BlogInputModel, BlogInputModel, {}>,
     res: Response
 ) => {
@@ -11,7 +11,13 @@ export const updateBlogHandler = (
         const { id } = req.params;
         const blog = req.body;
 
-        BlogsRepository.updateBlog(id, blog);
+        const isUpdated = await BlogsRepository.updateBlog(id, blog);
+
+        if (!isUpdated) {
+            res.sendStatus(HttpStatuses.NOT_FOUND);
+
+            return;
+        }
 
         res.sendStatus(HttpStatuses.NO_CONTENT);
     } catch (e) {

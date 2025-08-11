@@ -23,7 +23,7 @@ class BlogsRepository {
         };
     }
 
-    async updateBlog(id: string, blog: BlogModel): Promise<void> {
+    async updateBlog(id: string, blog: BlogModel): Promise<boolean> {
         const updatedBlog = await blogsCollection.updateOne({
             _id: new ObjectId(id),
         }, {
@@ -32,11 +32,7 @@ class BlogsRepository {
             }
         });
 
-        if (updatedBlog.matchedCount < 1) {
-            throw new Error("Blog not found");
-        }
-
-        return;
+        return updatedBlog.matchedCount >= 1;
     }
 
     async deleteBlog(id: string): Promise<void> {
