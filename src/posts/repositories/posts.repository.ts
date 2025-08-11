@@ -32,7 +32,7 @@ class PostsRepository {
         };
     }
 
-    async updatePost(id: string, post: PostInputModel): Promise<void> {
+    async updatePost(id: string, post: PostInputModel): Promise<boolean> {
         const updateResult = await postsCollection.updateOne({
             _id: new ObjectId(id),
         }, {
@@ -41,11 +41,7 @@ class PostsRepository {
             }
         })
 
-        if (updateResult.matchedCount < 1) {
-            throw new Error("Post not found");
-        }
-
-        return;
+        return updateResult.matchedCount >= 1;
     }
 
     async deletePost(id: string): Promise<void> {

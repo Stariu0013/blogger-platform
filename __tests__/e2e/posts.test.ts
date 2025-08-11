@@ -91,6 +91,19 @@ describe('Posts API', () => {
         );
         expect(res.status).toBe(HttpStatuses.NOT_FOUND);
     });
+    it(`should get error while updating not existing post`, async () => {
+        const INCORRECT_ID = "63189b06003380064c4193be";
+
+        const newPostInfo: PostInputModel = {
+            ...testPost,
+            title: 'title dhas dggsa'
+        };
+
+        const res = await request(app).put(`${APP_ROUTES.POSTS}/${INCORRECT_ID}`).set(
+            'Authorization', authToken
+        ).send(newPostInfo);
+        expect(res.status).toBe(HttpStatuses.NOT_FOUND);
+    });
     it(`should delete first blog`, async () => {
         const firstCreatedBlog = await request(app).post(APP_ROUTES.POSTS)
             .set('Authorization', authToken)
