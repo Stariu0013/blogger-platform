@@ -31,28 +31,7 @@ describe('Posts API', () => {
     beforeAll(async () => {
         await runDB(Settings.MONGO_URL);
         await clearDb(app);
-    })
-
-    // beforeAll(async () => {
-    //     const targetId = 1;
-    //
-    //     await request(app).post(APP_ROUTES.BLOGS).set(
-    //         'Authorization', authToken
-    //     ).send(testBlog).expect(HttpStatuses.CREATED);
-    //
-    //     const res = await request(app).get(`${APP_ROUTES.BLOGS}/${targetId}`);
-    //
-    //     const {
-    //         id,
-    //         name
-    //     } = res.body;
-    //
-    //     testPost = {
-    //         ...testPost,
-    //         blogId: id,
-    //         blogName: name
-    //     }
-    // });
+    });
 
     beforeEach(async () => {
         await request(app).delete(APP_ROUTES.TESTING + '/all-data').expect(HttpStatuses.NO_CONTENT);
@@ -95,6 +74,7 @@ describe('Posts API', () => {
             ...testPost,
             id: expect.any(String),
             blogName: expect.any(String),
+            createdAt: expect.any(String),
         });
         expect(res.status).toBe(HttpStatuses.OK);
     });
@@ -146,6 +126,7 @@ describe('Posts API', () => {
             ...newPostInfo,
             blogName: expect.any(String),
             id: expect.any(String),
+            createdAt: expect.any(String),
         });
         expect(targetPost.status).toBe(HttpStatuses.OK);
     });

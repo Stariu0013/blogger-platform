@@ -2,7 +2,7 @@ export type PostModel = {
     id?: string;
     blogName?: string;
     blogId?: string;
-    createdAt?: String;
+    createdAt?: string;
 
     title: string;
     shortDescription: string;
