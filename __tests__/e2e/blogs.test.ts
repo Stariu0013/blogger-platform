@@ -63,6 +63,8 @@ describe('Blogs API', () => {
         expect(res.body).toEqual({
             ...testBlog,
             id: expect.any(String),
+            isMembership: expect.any(Boolean),
+            createdAt: expect.any(String),
         });
         expect(res.status).toBe(HttpStatuses.OK);
     });
@@ -76,6 +78,8 @@ describe('Blogs API', () => {
             .send({
                 ...testBlog,
                 name: 'Blog 2',
+                isMembership: expect.any(Boolean),
+                createdAt: expect.any(String),
             })
             .expect(HttpStatuses.CREATED);
 
@@ -94,6 +98,8 @@ describe('Blogs API', () => {
             .send({
                 ...testBlog,
                 name: 'Blog 2',
+                isMembership: expect.any(Boolean),
+                createdAt: expect.any(String),
             })
             .expect(HttpStatuses.CREATED);
 
@@ -114,6 +120,8 @@ describe('Blogs API', () => {
         expect(targetBlog.body).toEqual({
             ...newBlogInfo,
             id: expect.any(String),
+            isMembership: expect.any(Boolean),
+            createdAt: expect.any(String),
         });
         expect(targetBlog.status).toBe(HttpStatuses.OK);
     });
