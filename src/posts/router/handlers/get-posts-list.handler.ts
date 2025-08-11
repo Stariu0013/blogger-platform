@@ -2,9 +2,9 @@ import {HttpStatuses} from "../../../core/types/http-statuses";
 import {Request, Response} from "express";
 import PostsRepository from "../../repositories/posts.repository";
 
-export const getPostsListHandler = (req: Request, res: Response) => {
+export const getPostsListHandler = async (req: Request, res: Response) => {
     try {
-        const blogs = PostsRepository.getAllPosts();
+        const blogs = await PostsRepository.getAllPosts();
 
         res.status(HttpStatuses.OK).send(blogs);
     } catch (e) {
