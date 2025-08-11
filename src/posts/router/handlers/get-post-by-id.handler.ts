@@ -7,17 +7,21 @@ import {mapToPostViewModal} from "../mapper/map-to-post-view-modal";
 export const getPostByIdHandler = async (
     req: Request<{id: string}, PostInputModel, {}, {}>, res: Response
 ) => {
-    const {id} = req.params;
+    try {
+        const {id} = req.params;
 
-    const post = await PostsRepository.getPostById(id);
+        const post = await PostsRepository.getPostById(id);
 
-    if (!post) {
-        res.sendStatus(HttpStatuses.NOT_FOUND);
+        if (!post) {
+            res.sendStatus(HttpStatuses.NOT_FOUND);
 
-        return;
+            return;
+        }
+
+        const mappedPost = mapToPostViewModal(post);
+
+        res.status(HttpStatuses.OK).send(mappedPost);
+    } catch (e) {
+        res.sendStatus(HttpStatuses.INTERNAL_SERVER_ERROR);
     }
-
-    const mappedPost = mapToPostViewModal(post);
-
-    res.status(HttpStatuses.OK).send(mappedPost);
 };

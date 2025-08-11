@@ -7,10 +7,14 @@ export const updatePostHandler = (
     req: Request<{id: string}, PostInputModel, PostInputModel, {}>,
     res: Response
 ) => {
-    const { id } = req.params;
-    const post = req.body;
+    try {
+        const { id } = req.params;
+        const post = req.body;
 
-    PostsRepository.updatePost(id, post);
+        PostsRepository.updatePost(id, post);
 
-    res.sendStatus(HttpStatuses.NO_CONTENT);
+        res.sendStatus(HttpStatuses.NO_CONTENT);
+    } catch (e) {
+        res.sendStatus(HttpStatuses.INTERNAL_SERVER_ERROR);
+    }
 };

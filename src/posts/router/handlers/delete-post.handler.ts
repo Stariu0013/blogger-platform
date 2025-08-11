@@ -9,22 +9,26 @@ export const deletePostHandler = (
     req: Request<{id: string}, PostInputModel, {}, {}>,
     res: Response
 ) => {
-    const {id} = req.params;
+    try {
+        const {id} = req.params;
 
-    const post = PostsRepository.getPostById(id);
+        const post = PostsRepository.getPostById(id);
 
-    if (!post) {
-        res.status(HttpStatuses.NOT_FOUND).send(createErrorMessage(
-            [
-                {
-                    field: "post",
-                    message: "Post not found"
-                }
-            ]
-        ))
+        if (!post) {
+            res.status(HttpStatuses.NOT_FOUND).send(createErrorMessage(
+                [
+                    {
+                        field: "post",
+                        message: "Post not found"
+                    }
+                ]
+            ))
+        }
+
+        BlogsRepository.deletePost(id);
+
+        res.sendStatus(HttpStatuses.NO_CONTENT);
+    } catch (e) {
+        res.sendStatus(HttpStatuses.INTERNAL_SERVER_ERROR);
     }
-
-    BlogsRepository.deletePost(id);
-
-    res.sendStatus(HttpStatuses.NO_CONTENT);
 };
