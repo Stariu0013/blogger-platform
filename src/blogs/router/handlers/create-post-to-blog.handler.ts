@@ -12,7 +12,12 @@ export const createPostToBlogHandler = async (
         const post = req.body;
         const blogId = req.params.id;
 
-        const blogItem = await BlogsService.findByIdOrFail(blogId)
+        if (!blogId) {
+            res.sendStatus(HttpStatuses.NOT_FOUND);
+            return
+        }
+
+        const blogItem = await BlogsService.findByIdOrFail(blogId);
 
         if (!blogItem) {
             res.sendStatus(HttpStatuses.NOT_FOUND);

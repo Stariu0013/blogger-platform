@@ -1,8 +1,7 @@
-import {WithId} from "mongodb";
 import {PostModel} from "../../types/posts.dto";
 
 export function mapToPostsListMappedOutput(
-    items: WithId<PostModel>[],
+    items: PostModel[],
     meta: {
         totalCount: number,
         pageSize: number,

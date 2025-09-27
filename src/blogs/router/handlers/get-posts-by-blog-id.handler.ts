@@ -13,6 +13,11 @@ export const getPostsByBlogIdHandler = async (
     try {
         const {id} = req.params;
 
+        if (!id) {
+            res.sendStatus(HttpStatuses.NOT_FOUND);
+            return
+        }
+
         const blogItem = await BlogsService.findByIdOrFail(id)
 
         if (!blogItem) {

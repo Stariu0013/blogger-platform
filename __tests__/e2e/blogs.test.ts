@@ -218,6 +218,7 @@ describe('Blogs API', () => {
         expect(postResponse.body).toEqual({
             id: expect.any(String),
             title: testPost.title,
+            blogName: expect.any(String),
             shortDescription: testPost.shortDescription,
             content: testPost.content,
             blogId: blogId,
@@ -228,12 +229,11 @@ describe('Blogs API', () => {
             .get(`${APP_ROUTES.BLOGS}/${blogId}/posts`)
             .expect(HttpStatuses.OK);
 
-
         expect(postsResponse.body.items.length).toBe(1);
         expect(postsResponse.body.items[0]).toEqual({
-            _id: expect.any(String),
+            id: expect.any(String),
             title: testPost.title,
-            blogName: testPost.title,
+            blogName: expect.any(String),
             shortDescription: testPost.shortDescription,
             content: testPost.content,
             blogId: blogId,

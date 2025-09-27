@@ -5,6 +5,7 @@ import {ObjectId, WithId} from "mongodb";
 import {BlogsQueryInput} from "../router/input/blogs-query.input";
 import {PostModel} from "../../posts/types/posts.dto";
 import {PostInputModel} from "../../posts/types/post-input.model";
+import {mapToPostViewModal} from "../../posts/router/mapper/map-to-post-view-modal";
 
 class BlogsRepository {
     async findMany(queryDto: BlogsQueryInput): Promise<{
@@ -48,7 +49,7 @@ class BlogsRepository {
     }
 
     async findPostsByBlogId(id: string, queryDto: BlogsQueryInput): Promise<{
-        items: WithId<PostModel>[],
+        items: PostModel[],
         totalCount: number
     }> {
         const {
@@ -61,9 +62,10 @@ class BlogsRepository {
 
         const items = await postsCollection.find({ blogId: id}).sort({[sortBy]: sortDirection}).skip(skip).limit(pageSize).toArray();
         const totalCount = await postsCollection.countDocuments({ blogId: id});
+        const mappedItems = items.map(item => mapToPostViewModal(item));
 
         return {
-            items,
+            items: mappedItems,
             totalCount
         };
     }
