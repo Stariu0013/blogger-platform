@@ -19,6 +19,6 @@ export const getPostsListHandler = async (req: Request, res: Response) => {
 
         res.status(HttpStatuses.OK).send(mappedPosts);
     } catch (e) {
-        res.sendStatus(HttpStatuses.INTERNAL_SERVER_ERROR);
+        res.status(HttpStatuses.INTERNAL_SERVER_ERROR).send(e);
     }
 };

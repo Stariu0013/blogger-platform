@@ -40,6 +40,6 @@ export const getPostsByBlogIdHandler = async (
 
         res.status(HttpStatuses.OK).send(postsByBlogIdListOutput);
     } catch (e) {
-        res.sendStatus(HttpStatuses.INTERNAL_SERVER_ERROR);
+        res.status(HttpStatuses.INTERNAL_SERVER_ERROR).send(e);
     }
 };

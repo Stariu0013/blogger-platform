@@ -240,7 +240,6 @@ describe('Blogs API', () => {
             createdAt: expect.any(String),
         });
     });
-
     it('POST /:id/posts - should return validation errors for invalid input', async () => {
         const createdBlog = await request(app).post(APP_ROUTES.BLOGS)
             .set('Authorization', authToken)
@@ -264,7 +263,6 @@ describe('Blogs API', () => {
             expect.objectContaining({ message: expect.stringContaining("must") })
         );
     });
-
     it('POST /:id/posts - should return 404 for invalid blog id', async () => {
         const invalidBlogId = "000000000000000000000000";
 

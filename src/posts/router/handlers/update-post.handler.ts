@@ -21,6 +21,6 @@ export const updatePostHandler = async (
 
         res.sendStatus(HttpStatuses.NO_CONTENT);
     } catch (e) {
-        res.sendStatus(HttpStatuses.INTERNAL_SERVER_ERROR);
+        res.status(HttpStatuses.INTERNAL_SERVER_ERROR).send(e);
     }
 };

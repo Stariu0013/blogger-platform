@@ -22,6 +22,6 @@ export const getPostByIdHandler = async (
 
         res.status(HttpStatuses.OK).send(mappedPost);
     } catch (e) {
-        res.sendStatus(HttpStatuses.INTERNAL_SERVER_ERROR);
+        res.status(HttpStatuses.INTERNAL_SERVER_ERROR).send(e);
     }
 };

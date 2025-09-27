@@ -36,6 +36,6 @@ export const createPostToBlogHandler = async (
 
         res.status(HttpStatuses.CREATED).send(mappedPost);
     } catch (e) {
-        res.sendStatus(HttpStatuses.INTERNAL_SERVER_ERROR);
+        res.status(HttpStatuses.INTERNAL_SERVER_ERROR).send(e);
     }
 };
