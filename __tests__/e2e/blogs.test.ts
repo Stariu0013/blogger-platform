@@ -342,3 +342,191 @@ describe('Blogs API', () => {
         });
     });
 });
+
+describe('GET /:id/posts - Pagination tests', () => {
+    const app = express();
+    setupApp(app);
+
+    beforeAll(async () => {
+        await runDB(Settings.MONGO_URL);
+        await clearDb(app);
+    });
+    const testBlog: BlogInputModel = {
+        name: 'Blog 1',
+        description: 'Blog 1 description',
+        websiteUrl: 'https://blog1.com',
+    };
+
+    const authToken = generateBasicAuthToken();
+
+    let createdBlogId: string;
+
+    beforeAll(async () => {
+        // Create a blog for testing posts
+        const createdBlog = await request(app).post(APP_ROUTES.BLOGS)
+            .set('Authorization', authToken)
+            .send(testBlog)
+            .expect(HttpStatuses.CREATED);
+
+        createdBlogId = createdBlog.body.id;
+
+        // Create 12 posts for pagination testing
+        for (let i = 1; i <= 12; i++) {
+            await request(app)
+                .post(`${APP_ROUTES.BLOGS}/${createdBlogId}/posts`)
+                .set('Authorization', authToken)
+                .send({
+                    title: `${3290 + i}post title`,
+                    shortDescription: "description",
+                    content: "new post content"
+                })
+                .expect(HttpStatuses.CREATED);
+        }
+    });
+
+    it('should return correct pagination metadata for first page', async () => {
+        const response = await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${createdBlogId}/posts?pageNumber=1&pageSize=3`)
+            .expect(HttpStatuses.OK);
+
+        expect(response.body.pagesCount).toBe(4);
+        expect(response.body.page).toBe(1); // Should be number, not string
+        expect(response.body.pageSize).toBe(3);
+        expect(response.body.totalCount).toBe(12);
+        expect(response.body.items).toHaveLength(3);
+    });
+
+    it('should return correct pagination metadata for second page', async () => {
+        const response = await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${createdBlogId}/posts?pageNumber=2&pageSize=3`)
+            .expect(HttpStatuses.OK);
+
+        expect(response.body.pagesCount).toBe(4);
+        expect(response.body.page).toBe(2);
+        expect(response.body.pageSize).toBe(3);
+        expect(response.body.totalCount).toBe(12);
+        expect(response.body.items).toHaveLength(3);
+    });
+
+    it('should return correct pagination metadata for last page', async () => {
+        const response = await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${createdBlogId}/posts?pageNumber=4&pageSize=3`)
+            .expect(HttpStatuses.OK);
+
+        expect(response.body.pagesCount).toBe(4);
+        expect(response.body.page).toBe(4);
+        expect(response.body.pageSize).toBe(3);
+        expect(response.body.totalCount).toBe(12);
+        expect(response.body.items).toHaveLength(3);
+    });
+
+    it('should return empty items for page beyond last page', async () => {
+        const response = await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${createdBlogId}/posts?pageNumber=5&pageSize=3`)
+            .expect(HttpStatuses.OK);
+
+        expect(response.body.pagesCount).toBe(4);
+        expect(response.body.page).toBe(5);
+        expect(response.body.pageSize).toBe(3);
+        expect(response.body.totalCount).toBe(12);
+        expect(response.body.items).toHaveLength(0);
+    });
+
+    it('should handle different page sizes correctly', async () => {
+        const response = await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${createdBlogId}/posts?pageNumber=1&pageSize=5`)
+            .expect(HttpStatuses.OK);
+
+        expect(response.body.pagesCount).toBe(3); // ceil(12/5) = 3
+        expect(response.body.page).toBe(1);
+        expect(response.body.pageSize).toBe(5);
+        expect(response.body.totalCount).toBe(12);
+        expect(response.body.items).toHaveLength(5);
+    });
+
+    it('should handle page size larger than total items', async () => {
+        const response = await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${createdBlogId}/posts?pageNumber=1&pageSize=20`)
+            .expect(HttpStatuses.OK);
+
+        expect(response.body.pagesCount).toBe(1);
+        expect(response.body.page).toBe(1);
+        expect(response.body.pageSize).toBe(20);
+        expect(response.body.totalCount).toBe(12);
+        expect(response.body.items).toHaveLength(12);
+    });
+
+    it('should use default pagination when no parameters provided', async () => {
+        const response = await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${createdBlogId}/posts`)
+            .expect(HttpStatuses.OK);
+
+        expect(response.body.page).toBe(1);
+        expect(response.body.pageSize).toBe(10); // Default page size
+        expect(response.body.totalCount).toBe(12);
+        expect(response.body.pagesCount).toBe(2); // ceil(12/10) = 2
+        expect(response.body.items).toHaveLength(10);
+    });
+
+    it('should validate invalid pageNumber parameter', async () => {
+        await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${createdBlogId}/posts?pageNumber=0`)
+            .expect(HttpStatuses.BAD_REQUEST);
+    });
+
+    it('should validate invalid pageSize parameter', async () => {
+        await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${createdBlogId}/posts?pageSize=0`)
+            .expect(HttpStatuses.BAD_REQUEST);
+    });
+
+    it('should validate pageSize exceeding maximum', async () => {
+        await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${createdBlogId}/posts?pageSize=101`)
+            .expect(HttpStatuses.BAD_REQUEST);
+    });
+
+    it('should return 404 for non-existent blog', async () => {
+        const nonExistentId = "000000000000000000000000";
+
+        await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${nonExistentId}/posts?pageNumber=1&pageSize=3`)
+            .expect(HttpStatuses.NOT_FOUND);
+    });
+
+    it('should return correct post structure in paginated response', async () => {
+        const response = await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${createdBlogId}/posts?pageNumber=1&pageSize=1`)
+            .expect(HttpStatuses.OK);
+
+        expect(response.body.items[0]).toEqual({
+            id: expect.any(String),
+            title: expect.any(String),
+            shortDescription: expect.any(String),
+            content: expect.any(String),
+            blogId: createdBlogId,
+            blogName: expect.any(String),
+            createdAt: expect.any(String),
+        });
+    });
+
+    it('should maintain correct sorting with pagination', async () => {
+        const response = await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${createdBlogId}/posts?pageNumber=1&pageSize=3&sortDirection=desc`)
+            .expect(HttpStatuses.OK);
+
+        const firstPageItems = response.body.items;
+
+        const response2 = await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${createdBlogId}/posts?pageNumber=2&pageSize=3&sortDirection=desc`)
+            .expect(HttpStatuses.OK);
+
+        const secondPageItems = response2.body.items;
+
+        // Check that first page has newer posts than second page (desc order)
+        if (firstPageItems.length > 0 && secondPageItems.length > 0) {
+            expect(new Date(firstPageItems[0].createdAt).getTime())
+                .toBeGreaterThan(new Date(secondPageItems[0].createdAt).getTime());
+        }
+    });
+});
