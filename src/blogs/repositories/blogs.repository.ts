@@ -2,16 +2,47 @@ import {BlogInputModel} from "../types/blogs.input-dto";
 import {BlogModel} from "../types/blogs.dto";
 import {blogsCollection} from "../../core/db/mongo.db";
 import {ObjectId, WithId} from "mongodb";
-import {mapToBlogViewModal} from "../router/mapper/map-to-blog-view-modal";
+import {BlogsQueryInput} from "../router/input/blogs-query.input";
 
 class BlogsRepository {
-    async getAllBlogs(): Promise<BlogModel[]> {
-        const blogs = await blogsCollection.find().toArray();
-        return blogs.map(blog => mapToBlogViewModal(blog));
+    async findMany(queryDto: BlogsQueryInput): Promise<{
+        items: WithId<BlogModel>[],
+        totalCount: number
+    }> {
+        const {
+            searchNameTerm,
+            pageSize,
+            sortBy,
+            pageNumber,
+            sortDirection
+        } = queryDto;
+        const filter: any = {};
+        const skip = pageSize * (pageNumber - 1);
+
+        if (searchNameTerm) {
+            filter.name = {
+                $regex: searchNameTerm,
+                $options: "i"
+            }
+        }
+
+        const blogs = await blogsCollection.find(filter).sort({[sortBy]: sortDirection}).skip(skip).limit(pageSize).toArray();
+        const totalCount = await blogsCollection.countDocuments(filter);
+
+        return {
+            items: blogs,
+            totalCount
+        };
     }
 
-    async getBlogById(id: string): Promise<WithId<BlogModel> | null> {
-        return blogsCollection.findOne({_id: new ObjectId(id)});
+    async findByIdOrFail(id: string): Promise<WithId<BlogModel> | null> {
+        const res = blogsCollection.findOne({_id: new ObjectId(id)});
+
+        if (!res) {
+            throw new Error("Blog not found");
+        }
+
+        return res;
     }
 
     async createBlog(blog: BlogInputModel): Promise<WithId<BlogModel>> {

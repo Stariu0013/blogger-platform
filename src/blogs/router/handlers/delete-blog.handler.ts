@@ -11,7 +11,7 @@ export const deleteBlogHandler = async (
     try {
         const {id} = req.params;
 
-        const blog = await BlogsRepository.getBlogById(id);
+        const blog = await BlogsRepository.findByIdOrFail(id);
 
         if (!blog) {
             res.status(HttpStatuses.NOT_FOUND).send(createErrorMessage(
@@ -26,7 +26,7 @@ export const deleteBlogHandler = async (
             return;
         }
 
-        BlogsRepository.deleteBlog(id);
+        await BlogsRepository.deleteBlog(id);
 
         res.sendStatus(HttpStatuses.NO_CONTENT);
     } catch (e) {
