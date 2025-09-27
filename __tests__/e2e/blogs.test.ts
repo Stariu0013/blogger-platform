@@ -233,6 +233,7 @@ describe('Blogs API', () => {
         expect(postsResponse.body.items[0]).toEqual({
             _id: expect.any(String),
             title: testPost.title,
+            blogName: testPost.title,
             shortDescription: testPost.shortDescription,
             content: testPost.content,
             blogId: blogId,

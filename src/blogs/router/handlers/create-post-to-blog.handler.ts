@@ -22,6 +22,7 @@ export const createPostToBlogHandler = async (
         const newPost = {
             ...post,
             blogId,
+            blogName: blogItem.name,
             createdAt: new Date().toISOString(),
         };
 
