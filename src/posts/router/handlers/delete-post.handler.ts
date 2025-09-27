@@ -1,9 +1,9 @@
 import {Request, Response} from "express";
-import BlogsRepository from "../../repositories/posts.repository";
 import {createErrorMessage} from "../../../core/utils/creaste-error-message";
 import {HttpStatuses} from "../../../core/types/http-statuses";
 import {PostInputModel} from "../../types/post-input.model";
-import PostsRepository from "../../repositories/posts.repository";
+import {PostsService} from "../../application/posts.application";
+import {BlogsService} from "../../../blogs/application/blogs.application";
 
 export const deletePostHandler = async (
     req: Request<{id: string}, PostInputModel, {}, {}>,
@@ -12,7 +12,7 @@ export const deletePostHandler = async (
     try {
         const {id} = req.params;
 
-        const post = await PostsRepository.getPostById(id);
+        const post = await PostsService.findByIdOrFail(id);
 
         if (!post) {
             res.status(HttpStatuses.NOT_FOUND).send(createErrorMessage(
@@ -27,7 +27,7 @@ export const deletePostHandler = async (
             return;
         }
 
-        BlogsRepository.deletePost(id);
+        BlogsService.deleteBlogById(id);
 
         res.sendStatus(HttpStatuses.NO_CONTENT);
     } catch (e) {
