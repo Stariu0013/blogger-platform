@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 import {BlogInputModel} from "../../types/blogs.input-dto";
 import {HttpStatuses} from "../../../core/types/http-statuses";
-import BlogsRepository from "../../repositories/blogs.repository";
+import {BlogsService} from "../../application/blogs.application";
 
 export const updateBlogHandler = async (
     req: Request<{id: string}, BlogInputModel, BlogInputModel, {}>,
@@ -11,7 +11,7 @@ export const updateBlogHandler = async (
         const { id } = req.params;
         const blog = req.body;
 
-        const isUpdated = await BlogsRepository.updateBlog(id, blog);
+        const isUpdated = await BlogsService.updateBlog(id, blog);
 
         if (!isUpdated) {
             res.sendStatus(HttpStatuses.NOT_FOUND);

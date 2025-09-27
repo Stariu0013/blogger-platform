@@ -1,4 +1,4 @@
-import {body, param} from 'express-validator';
+import {body, param, query} from 'express-validator';
 
 const isNameValid = body('name')
     .isString().withMessage('Name must be a string')
@@ -20,6 +20,8 @@ export const isIdValid = param('id')
     .isString().withMessage('Id must be a string')
     .isMongoId().withMessage('Id must be a valid mongo id')
 ;
+
+export const isBlogIdValid = query('blogId').isString().withMessage('blogId must be a string').trim().isLength({min: 1}).withMessage('blogId must exist');
 
 export const validateBlogsInputData = [
     isNameValid,

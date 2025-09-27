@@ -1,8 +1,10 @@
 import {BlogInputModel} from "../types/blogs.input-dto";
 import {BlogModel} from "../types/blogs.dto";
-import {blogsCollection} from "../../core/db/mongo.db";
+import {blogsCollection, postsCollection} from "../../core/db/mongo.db";
 import {ObjectId, WithId} from "mongodb";
 import {BlogsQueryInput} from "../router/input/blogs-query.input";
+import {PostModel} from "../../posts/types/posts.dto";
+import {PostInputModel} from "../../posts/types/post-input.model";
 
 class BlogsRepository {
     async findMany(queryDto: BlogsQueryInput): Promise<{
@@ -45,11 +47,41 @@ class BlogsRepository {
         return res;
     }
 
+    async findPostsByBlogId(id: string, queryDto: BlogsQueryInput): Promise<{
+        items: WithId<PostModel>[],
+        totalCount: number
+    }> {
+        const {
+            pageSize,
+            sortBy,
+            pageNumber,
+            sortDirection
+        } = queryDto;
+        const skip = pageSize * (pageNumber - 1);
+
+        const items = await postsCollection.find({_id: new ObjectId(id), blogId: id}).sort({[sortBy]: sortDirection}).skip(skip).limit(pageSize).toArray();
+        const totalCount = await postsCollection.countDocuments({_id: new ObjectId(id), blogId: id});
+
+        return {
+            items,
+            totalCount
+        };
+    }
+
     async createBlog(blog: BlogInputModel): Promise<WithId<BlogModel>> {
         const insertResult = await blogsCollection.insertOne(blog);
 
         return {
             ...blog,
+            _id: insertResult.insertedId,
+        };
+    }
+
+    async createPostForBlog(post: PostInputModel): Promise<WithId<PostModel>> {
+        const insertResult = await postsCollection.insertOne(post);
+
+        return {
+            ...post,
             _id: insertResult.insertedId,
         };
     }

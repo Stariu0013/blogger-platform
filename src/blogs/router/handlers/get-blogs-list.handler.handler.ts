@@ -5,7 +5,7 @@ import {BlogsQueryInput} from "../input/blogs-query.input";
 import {setDefaultSortAndPagination} from "../../../core/helpers/set-default-sort-and-pagination";
 import {mapToBlogsListMappedOutput} from "../mapper/map-to-blogs-list-mapped-output";
 
-export const getBlogsListHandler = async (
+export const getBlogsListHandlerHandler = async (
     req: Request,
     res: Response
 ) => {

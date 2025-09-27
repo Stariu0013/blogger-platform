@@ -2,7 +2,6 @@ import {PostInputModel} from "../types/post-input.model";
 import {postsCollection} from "../../core/db/mongo.db";
 import {PostModel} from "../types/posts.dto";
 import {ObjectId, WithId} from "mongodb";
-import {mapToPostViewModal} from "../router/mapper/map-to-post-view-modal";
 import {PostsQueryInput} from "../router/input/posts-query.input";
 
 class PostsRepository {

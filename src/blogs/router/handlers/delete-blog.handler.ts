@@ -1,8 +1,8 @@
 import {Request, Response} from "express";
 import {BlogModel} from "../../types/blogs.dto";
-import BlogsRepository from "../../repositories/blogs.repository";
 import {createErrorMessage} from "../../../core/utils/creaste-error-message";
 import {HttpStatuses} from "../../../core/types/http-statuses";
+import {BlogsService} from "../../application/blogs.application";
 
 export const deleteBlogHandler = async (
     req: Request<{id: string}, BlogModel, {}, {}>,
@@ -11,7 +11,7 @@ export const deleteBlogHandler = async (
     try {
         const {id} = req.params;
 
-        const blog = await BlogsRepository.findByIdOrFail(id);
+        const blog = await BlogsService.findByIdOrFail(id);
 
         if (!blog) {
             res.status(HttpStatuses.NOT_FOUND).send(createErrorMessage(
@@ -26,7 +26,7 @@ export const deleteBlogHandler = async (
             return;
         }
 
-        await BlogsRepository.deleteBlog(id);
+        await BlogsService.deleteBlogById(id);
 
         res.sendStatus(HttpStatuses.NO_CONTENT);
     } catch (e) {

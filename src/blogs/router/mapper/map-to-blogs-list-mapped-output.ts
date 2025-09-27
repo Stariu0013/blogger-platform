@@ -10,7 +10,7 @@ export function mapToBlogsListMappedOutput(
     }) {
     return {
         items: blogs,
-        ...meta,
+        totalCount: meta.totalCount,
         page: meta.pageNumber,
         pagesCount: Math.ceil(meta.totalCount / meta.pageSize),
     };

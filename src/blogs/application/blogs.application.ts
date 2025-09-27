@@ -3,6 +3,8 @@ import {BlogInputModel} from "../types/blogs.input-dto";
 import {BlogModel} from "../types/blogs.dto";
 import {WithId} from "mongodb";
 import {BlogsQueryInput} from "../router/input/blogs-query.input";
+import {PostInputModel} from "../../posts/types/post-input.model";
+import {PostModel} from "../../posts/types/posts.dto";
 
 export const BlogsService = {
     async findMany(queryDto: BlogsQueryInput): Promise<{
@@ -16,8 +18,12 @@ export const BlogsService = {
         return await blogsRepository.findByIdOrFail(id);
     },
 
-    async createBlog(blog: BlogInputModel): Promise<BlogModel> {
+    async createBlog(blog: BlogInputModel): Promise<WithId<BlogModel>> {
         return await blogsRepository.createBlog(blog);
+    },
+
+    async createPostForBlog(post: PostInputModel): Promise<WithId<PostModel>> {
+        return await blogsRepository.createPostForBlog(post);
     },
 
     async updateBlog(id: string, blog: BlogInputModel): Promise<boolean> {
