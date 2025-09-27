@@ -27,7 +27,7 @@ export const deletePostHandler = async (
             return;
         }
 
-        BlogsService.deleteBlogById(id);
+        PostsService.deletePostById(id);
 
         res.sendStatus(HttpStatuses.NO_CONTENT);
     } catch (e) {
