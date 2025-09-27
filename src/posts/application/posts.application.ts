@@ -5,7 +5,7 @@ import postsRepository from "../repositories/posts.repository";
 
 export const PostsService = {
     async findMany(queryDto: PostsQueryInput): Promise<{
-        items: WithId<PostModel>[]
+        items: PostModel[]
         totalCount: number
     }> {
         return await postsRepository.findMany(queryDto);

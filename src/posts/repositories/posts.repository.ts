@@ -3,10 +3,11 @@ import {postsCollection} from "../../core/db/mongo.db";
 import {PostModel} from "../types/posts.dto";
 import {ObjectId, WithId} from "mongodb";
 import {PostsQueryInput} from "../router/input/posts-query.input";
+import {mapToPostViewModal} from "../router/mapper/map-to-post-view-modal";
 
 class PostsRepository {
     async findMany(queryDto: PostsQueryInput): Promise<{
-        items: WithId<PostModel>[],
+        items: PostModel[],
         totalCount: number
     }> {
         const {
@@ -20,11 +21,12 @@ class PostsRepository {
         const posts = await postsCollection.find().skip(skip).sort({
             [sortBy]: sortDirection
         }).limit(pageSize).toArray();
+        const mappedPosts = posts.map(item => mapToPostViewModal(item));
 
         const totalCount = await postsCollection.countDocuments();
 
         return {
-            items: posts,
+            items: mappedPosts,
             totalCount
         };
     }

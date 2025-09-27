@@ -8,7 +8,7 @@ import {PostModel} from "../../posts/types/posts.dto";
 
 export const BlogsService = {
     async findMany(queryDto: BlogsQueryInput): Promise<{
-        items: WithId<BlogModel>[],
+        items: BlogModel[],
         totalCount: number
     }> {
         return await blogsRepository.findMany(queryDto);

@@ -6,10 +6,11 @@ import {BlogsQueryInput} from "../router/input/blogs-query.input";
 import {PostModel} from "../../posts/types/posts.dto";
 import {PostInputModel} from "../../posts/types/post-input.model";
 import {mapToPostViewModal} from "../../posts/router/mapper/map-to-post-view-modal";
+import {mapToBlogViewModal} from "../router/mapper/map-to-blog-view-modal";
 
 class BlogsRepository {
     async findMany(queryDto: BlogsQueryInput): Promise<{
-        items: WithId<BlogModel>[],
+        items: BlogModel[],
         totalCount: number
     }> {
         const {
@@ -31,9 +32,10 @@ class BlogsRepository {
 
         const blogs = await blogsCollection.find(filter).sort({[sortBy]: sortDirection}).skip(skip).limit(pageSize).toArray();
         const totalCount = await blogsCollection.countDocuments(filter);
+        const mapperBlogs = blogs.map(item => mapToBlogViewModal(item));
 
         return {
-            items: blogs,
+            items: mapperBlogs,
             totalCount
         };
     }

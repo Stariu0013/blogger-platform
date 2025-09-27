@@ -1,8 +1,7 @@
 import {BlogModel} from "../../types/blogs.dto";
-import {WithId} from "mongodb";
 
 export function mapToBlogsListMappedOutput(
-    blogs: WithId<BlogModel>[],
+    blogs: BlogModel[],
     meta: {
         pageNumber: number,
         pageSize: number,
