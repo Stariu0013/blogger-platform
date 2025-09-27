@@ -11,7 +11,7 @@ export function mapToPostsListMappedOutput(
     return {
         items,
         totalCount: meta.totalCount,
-        page: meta.pageNumber,
+        page: +meta.pageNumber,
         pageSize: meta.pageSize,
         pagesCount: Math.ceil(meta.totalCount / meta.pageSize),
     }
