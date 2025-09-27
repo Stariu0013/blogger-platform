@@ -7,19 +7,9 @@ export function setDefaultSortAndPagination<P = string>(
     query: Partial<PaginationAndSorting<P>>
 ): PaginationAndSorting<P> {
     return {
-        ...paginationAndSortingDefault,
-        ...query,
-        pageNumber: typeof query.pageNumber !== 'number'
-            ? isNaN(Number(query.pageNumber))
-                ? paginationAndSortingDefault.pageNumber
-                : Number(query.pageNumber)
-            : query.pageNumber,
-        pageSize: typeof query.pageSize !== 'number'
-            ? isNaN(Number(query.pageSize))
-                ? paginationAndSortingDefault.pageSize
-                : Number(query.pageSize)
-            : query.pageSize,
-        sortBy: (query.sortBy ?? paginationAndSortingDefault.sortBy) as P,
+        pageNumber: query.pageNumber || paginationAndSortingDefault.pageNumber,
+        pageSize: query.pageSize || paginationAndSortingDefault.pageSize,
+        sortDirection: query.sortDirection || paginationAndSortingDefault.sortDirection,
+        sortBy: (query.sortBy || paginationAndSortingDefault.sortBy) as P,
     }
-
 }
