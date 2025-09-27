@@ -35,7 +35,7 @@ class BlogsRepository {
         const mapperBlogs = blogs.map(item => mapToBlogViewModal(item));
 
         return {
-            items: mapperBlogs,
+            items: blogs,
             totalCount
         };
     }
