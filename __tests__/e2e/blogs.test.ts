@@ -275,4 +275,71 @@ describe('Blogs API', () => {
         expect(res.body).toEqual({});
     });
 
+    it(`should create and return blog with pagination`, async () => {
+        await request(app).post(APP_ROUTES.BLOGS).set(
+            'Authorization', authToken
+        ).send(testBlog);
+        await request(app).post(APP_ROUTES.BLOGS).set(
+            'Authorization', authToken
+        ).send(testBlog);
+        await request(app).post(APP_ROUTES.BLOGS).set(
+            'Authorization', authToken
+        ).send(testBlog);
+        await request(app).post(APP_ROUTES.BLOGS).set(
+            'Authorization', authToken
+        ).send(testBlog);
+
+        // pageSize
+        const res = await request(app).get(`${APP_ROUTES.BLOGS}?pageNumber=1&sortDirection=asc`).set(
+            'Authorization', authToken
+        );
+
+        console.log(res.body)
+    });
+
+    describe('Page size parameter', () => {
+        it('should return 5 items with pageSize=5', async () => {
+            const response = await request(app)
+                .get(`${APP_ROUTES.BLOGS}?pageSize=5`)
+                .expect(HttpStatuses.OK);
+
+            expect(response.body.pageSize).toBe(5);
+            expect(response.body.items).toHaveLength(5);
+        });
+
+        it('should return 15 items with pageSize=15', async () => {
+            const response = await request(app)
+                .get(`${APP_ROUTES.BLOGS}?pageSize=15`)
+                .expect(HttpStatuses.OK);
+
+            expect(response.body.pageSize).toBe(15);
+            expect(response.body.pagesCount).toBe(2);
+        });
+
+        it('should return all items with large pageSize', async () => {
+            const response = await request(app)
+                .get(`${APP_ROUTES.BLOGS}?pageSize=100`)
+                .expect(HttpStatuses.OK);
+
+            expect(response.body.pagesCount).toBe(1);
+        });
+
+        it('should handle invalid pageSize (zero)', async () => {
+            const response = await request(app)
+                .get(`${APP_ROUTES.BLOGS}?pageSize=0`)
+                .expect(HttpStatuses.BAD_REQUEST);
+        });
+
+        it('should handle invalid pageSize (negative)', async () => {
+            const response = await request(app)
+                .get(`${APP_ROUTES.BLOGS}?pageSize=-5`)
+                .expect(HttpStatuses.BAD_REQUEST);
+        });
+
+        it('should handle invalid pageSize (string)', async () => {
+            const response = await request(app)
+                .get(`${APP_ROUTES.BLOGS}?pageSize=invalid`)
+                .expect(HttpStatuses.BAD_REQUEST);
+        });
+    });
 });

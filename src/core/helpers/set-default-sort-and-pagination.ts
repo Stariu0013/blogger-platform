@@ -5,10 +5,11 @@ import {
 
 export function setDefaultSortAndPagination<P = string>(
 query: Partial<PaginationAndSorting<P>>
-) {
+):PaginationAndSorting<P> {
     return {
         ...paginationAndSortingDefault,
         ...query,
+        pageSize: typeof query.pageSize !== 'number' ? Number(query.pageSize) : query.pageSize,
         sortBy: (query.sortBy ?? paginationAndSortingDefault.sortBy) as P,
     }
 }

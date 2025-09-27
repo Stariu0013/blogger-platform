@@ -22,6 +22,7 @@ export const getBlogsListHandlerHandler = async (
 
         res.status(HttpStatuses.OK).send(blogsListOutput);
     } catch (e) {
+        console.error('Error', e);
         res.status(HttpStatuses.INTERNAL_SERVER_ERROR).send(e);
     }
 };

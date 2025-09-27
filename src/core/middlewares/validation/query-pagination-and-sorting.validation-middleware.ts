@@ -15,15 +15,39 @@ export const paginationAndSortingDefault: PaginationAndSorting<string> = {
 };
 
 export function paginationAndSortValidation<T extends string>(
-    sortFieldEnum: Record<T, string>,
+    sortFieldsEnum: Record<T, string>,
 ) {
-    const allowedSortFields = Object.values(sortFieldEnum);
-    const allowedSortDirections = Object.values(SortDirection);
+    const allowedSortFields = Object.values(sortFieldsEnum);
 
     return [
-        query('pageNumber').optional().isInt({min: 1}).default(DEFAULT_PAGE).withMessage('Page number must be a number').toInt(),
-        query('pageSize').optional().isInt({min: 1}).default(DEFAULT_PAGE_SIZE).withMessage('Page size must be a number').toInt(),
-        query('sortBy').optional().isIn(allowedSortFields).default(DEFAULT_SORT_BY).withMessage('Sort by must be one of the following: ' + allowedSortFields.join(', ')),
-        query('sortDirection').optional().isIn(allowedSortDirections).default(DEFAULT_SORT_DIRECTION).withMessage('Sort direction must be one of the following: ' + allowedSortDirections.join(', '))
+        query('pageNumber')
+            .optional()
+            .default(DEFAULT_PAGE)
+            .isInt({ min: 1 })
+            .withMessage('Page number must be a positive integer')
+            .toInt(),
+
+        query('pageSize')
+            .optional()
+            .default(DEFAULT_PAGE_SIZE)
+            .toInt()
+            .isInt({ min: 1, max: 100 })
+            .withMessage('Page size must be between 1 and 100')
+        ,
+        query('sortBy')
+            .optional()
+            .default(Object.values(sortFieldsEnum)[0])
+            .isIn(allowedSortFields)
+            .withMessage(
+                `Invalid sort field. Allowed values: ${allowedSortFields.join(', ')}`,
+            ),
+
+        query('sortDirection')
+            .optional()
+            .default(DEFAULT_SORT_DIRECTION)
+            .isIn(Object.values(SortDirection))
+            .withMessage(
+                `Sort direction must be one of: ${Object.values(SortDirection).join(', ')}`,
+            ),
     ];
 }

@@ -7,11 +7,19 @@ import {updatePostHandler} from "./handlers/update-post.handler";
 import {superAdminGuardMiddleware} from "../../auth/middlewares/super-admin.guard-middleware";
 import {inputResultValidationMiddleware} from "../../core/validation/input-result-validation-middleware";
 import {isBlogIdValid, validatePostsInputData} from "../validation/posts.validation";
+import {
+    paginationAndSortValidation
+} from "../../core/middlewares/validation/query-pagination-and-sorting.validation-middleware";
+import {BlogsSortFieldInput} from "../../blogs/router/input/blogs-sort-field.input";
 
 const postsRouter = Router({});
 
 postsRouter
-    .get("/", getPostsListHandler)
+    .get("/",
+        paginationAndSortValidation(BlogsSortFieldInput),
+        inputResultValidationMiddleware,
+        getPostsListHandler
+    )
     .get("/:id", isBlogIdValid, getPostByIdHandler)
     .post('/', superAdminGuardMiddleware, validatePostsInputData, inputResultValidationMiddleware, createPostHandler)
     .put('/:id', superAdminGuardMiddleware, validatePostsInputData, inputResultValidationMiddleware, updatePostHandler)

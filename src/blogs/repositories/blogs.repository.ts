@@ -20,6 +20,7 @@ class BlogsRepository {
             pageNumber,
             sortDirection
         } = queryDto;
+
         const filter: any = {};
         const skip = pageSize * (pageNumber - 1);
 
