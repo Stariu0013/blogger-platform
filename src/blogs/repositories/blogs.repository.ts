@@ -59,8 +59,8 @@ class BlogsRepository {
         } = queryDto;
         const skip = pageSize * (pageNumber - 1);
 
-        const items = await postsCollection.find({_id: new ObjectId(id), blogId: id}).sort({[sortBy]: sortDirection}).skip(skip).limit(pageSize).toArray();
-        const totalCount = await postsCollection.countDocuments({_id: new ObjectId(id), blogId: id});
+        const items = await postsCollection.find({ blogId: id}).sort({[sortBy]: sortDirection}).skip(skip).limit(pageSize).toArray();
+        const totalCount = await postsCollection.countDocuments({ blogId: id});
 
         return {
             items,

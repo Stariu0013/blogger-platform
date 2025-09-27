@@ -4,7 +4,7 @@ import {Request, Response} from "express";
 import {BlogModel} from "../../types/blogs.dto";
 import {setDefaultSortAndPagination} from "../../../core/helpers/set-default-sort-and-pagination";
 import {BlogsQueryInput} from "../input/blogs-query.input";
-import {mapToBlogsListMappedOutput} from "../mapper/map-to-blogs-list-mapped-output";
+import {mapToPostsListMappedOutput} from "../../../posts/router/mapper/map-to-posts-list-mapped-output";
 
 export const getPostsByBlogIdHandler = async (
     req: Request<{id: string}, BlogModel, {}, {}>, res: Response
@@ -18,7 +18,7 @@ export const getPostsByBlogIdHandler = async (
             totalCount,
         } = await BlogsRepository.findPostsByBlogId(id, queryInput);
 
-        const postsByBlogIdListOutput = mapToBlogsListMappedOutput(items, {
+        const postsByBlogIdListOutput = mapToPostsListMappedOutput(items, {
             totalCount,
             pageNumber: queryInput.pageNumber,
             pageSize: queryInput.pageSize

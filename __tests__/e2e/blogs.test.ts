@@ -176,4 +176,104 @@ describe('Blogs API', () => {
         expect(res.status).toBe(HttpStatuses.BAD_REQUEST);
         expect(res.body.errorsMessages.length).toEqual(1);
     });
+
+    it('GET /:id/posts - should fetch posts by blog id', async () => {
+        const createdBlog = await request(app).post(APP_ROUTES.BLOGS)
+            .set('Authorization', authToken)
+            .send(testBlog)
+            .expect(HttpStatuses.CREATED);
+
+        const blogId = createdBlog.body.id;
+
+        const res = await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${blogId}/posts`)
+            .expect(HttpStatuses.OK);
+
+        expect(res.body.items).toEqual([]);
+    });
+
+    const testPost = {
+        title: "Sample Post",
+        shortDescription: "Sample Short Description",
+        content: "Sample Post Content"
+    };
+
+    it('POST /:id/posts - should create a post for a specific blog', async () => {
+        const createdBlog = await request(app).post(APP_ROUTES.BLOGS)
+            .set('Authorization', authToken)
+            .send(testBlog)
+            .expect(HttpStatuses.CREATED);
+
+        const blogId = createdBlog.body.id;
+
+        const postResponse = await request(app)
+            .post(`${APP_ROUTES.BLOGS}/${blogId}/posts`)
+            .set('Authorization', authToken)
+            .send({
+                ...testPost,
+                blogId: blogId
+            })
+            .expect(HttpStatuses.CREATED);
+
+        expect(postResponse.body).toEqual({
+            id: expect.any(String),
+            title: testPost.title,
+            shortDescription: testPost.shortDescription,
+            content: testPost.content,
+            blogId: blogId,
+            createdAt: expect.any(String),
+        });
+
+        const postsResponse = await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${blogId}/posts`)
+            .expect(HttpStatuses.OK);
+
+
+        expect(postsResponse.body.items.length).toBe(1);
+        expect(postsResponse.body.items[0]).toEqual({
+            _id: expect.any(String),
+            title: testPost.title,
+            shortDescription: testPost.shortDescription,
+            content: testPost.content,
+            blogId: blogId,
+            createdAt: expect.any(String),
+        });
+    });
+
+    it('POST /:id/posts - should return validation errors for invalid input', async () => {
+        const createdBlog = await request(app).post(APP_ROUTES.BLOGS)
+            .set('Authorization', authToken)
+            .send(testBlog)
+            .expect(HttpStatuses.CREATED);
+
+        const blogId = createdBlog.body.id;
+
+        const invalidPostResponse = await request(app)
+            .post(`${APP_ROUTES.BLOGS}/${blogId}/posts`)
+            .set('Authorization', authToken)
+            .send({
+                title: "",
+                shortDescription: "",
+                content: ""
+            })
+            .expect(HttpStatuses.BAD_REQUEST);
+
+        expect(invalidPostResponse.body.errorsMessages.length).toBeGreaterThanOrEqual(3);
+        expect(invalidPostResponse.body.errorsMessages).toContainEqual(
+            expect.objectContaining({ message: expect.stringContaining("must") })
+        );
+    });
+
+    it('POST /:id/posts - should return 404 for invalid blog id', async () => {
+        const invalidBlogId = "000000000000000000000000";
+
+        const res = await request(app)
+            .post(`${APP_ROUTES.BLOGS}/${invalidBlogId}/posts`)
+            .set('Authorization', authToken)
+            .send(testPost)
+            .expect(HttpStatuses.NOT_FOUND);
+
+        expect(res.body).toEqual({});
+    });
+
 });

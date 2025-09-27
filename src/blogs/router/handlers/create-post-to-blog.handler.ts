@@ -1,8 +1,5 @@
 import { Request, Response } from 'express';
-import {BlogInputModel} from "../../types/blogs.input-dto";
-import BlogsRepository from "../../repositories/blogs.repository";
 import {HttpStatuses} from "../../../core/types/http-statuses";
-import {mapToBlogViewModal} from "../mapper/map-to-blog-view-modal";
 import {PostInputModel} from "../../../posts/types/post-input.model";
 import {BlogsService} from "../../application/blogs.application";
 import {mapToPostViewModal} from "../../../posts/router/mapper/map-to-post-view-modal";
@@ -15,9 +12,17 @@ export const createPostToBlogHandler = async (
         const post = req.body;
         const blogId = req.params.id;
 
+        const blogItem = await BlogsService.findByIdOrFail(blogId)
+
+        if (!blogItem) {
+            res.sendStatus(HttpStatuses.NOT_FOUND);
+            return;
+        }
+
         const newPost = {
             ...post,
-            blogId
+            blogId,
+            createdAt: new Date().toISOString(),
         };
 
         const responsePost = await BlogsService.createPostForBlog(newPost);
