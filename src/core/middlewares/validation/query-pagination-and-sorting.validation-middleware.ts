@@ -1,3 +1,4 @@
+
 import {SortDirection} from "../../types/sort-direction";
 import {PaginationAndSorting} from "../../types/pagination-and-sorting";
 import {query} from "express-validator";
@@ -23,17 +24,17 @@ export function paginationAndSortValidation<T extends string>(
         query('pageNumber')
             .optional()
             .default(DEFAULT_PAGE)
+            .toInt()
             .isInt({ min: 1 })
-            .withMessage('Page number must be a positive integer')
-            .toInt(),
+            .withMessage('Page number must be a positive integer'),
 
         query('pageSize')
             .optional()
             .default(DEFAULT_PAGE_SIZE)
             .toInt()
             .isInt({ min: 1, max: 100 })
-            .withMessage('Page size must be between 1 and 100')
-        ,
+            .withMessage('Page size must be between 1 and 100'),
+
         query('sortBy')
             .optional()
             .default(Object.values(sortFieldsEnum)[0])

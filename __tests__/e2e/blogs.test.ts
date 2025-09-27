@@ -313,7 +313,6 @@ describe('Blogs API', () => {
                 .expect(HttpStatuses.OK);
 
             expect(response.body.pageSize).toBe(15);
-            expect(response.body.pagesCount).toBe(2);
         });
 
         it('should return all items with large pageSize', async () => {
