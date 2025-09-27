@@ -1,0 +1,25 @@
+import {PostsQueryInput} from "../router/input/posts-query.input";
+import {WithId} from "mongodb";
+import {PostModel} from "../types/posts.dto";
+import postsRepository from "../repositories/posts.repository";
+
+export const PostsService = {
+    async findMany(queryDto: PostsQueryInput): Promise<{
+        items: WithId<PostModel>[]
+        totalCount: number
+    }> {
+        return await postsRepository.findMany(queryDto);
+    },
+    async findByIdOrFail(id: string): Promise<WithId<PostModel> | null> {
+        return await postsRepository.findByIdOrFail(id);
+    },
+    async createPost(post: PostModel): Promise<PostModel> {
+        return await postsRepository.createPost(post);
+    },
+    async updatePost(id: string, post: PostModel): Promise<boolean> {
+        return await postsRepository.updatePost(id, post);
+    },
+    deletePostById(id: string): Promise<void> {
+        return postsRepository.deletePost(id);
+    }
+}
