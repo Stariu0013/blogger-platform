@@ -13,7 +13,7 @@ export const PostsService = {
     async findByIdOrFail(id: string): Promise<WithId<PostModel> | null> {
         return await postsRepository.findByIdOrFail(id);
     },
-    async createPost(post: PostModel): Promise<PostModel> {
+    async createPost(post: PostModel): Promise<WithId<PostModel>> {
         return await postsRepository.createPost(post);
     },
     async updatePost(id: string, post: PostModel): Promise<boolean> {

@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 import {HttpStatuses} from "../../../core/types/http-statuses";
 import {PostInputModel} from "../../types/post-input.model";
-import PostsRepository from "../../repositories/posts.repository";
+import {PostsService} from "../../application/posts.application";
 
 export const updatePostHandler = async (
     req: Request<{id: string}, PostInputModel, PostInputModel, {}>,
@@ -11,7 +11,7 @@ export const updatePostHandler = async (
         const { id } = req.params;
         const post = req.body;
 
-        const isUpdated = await PostsRepository.updatePost(id, post);
+        const isUpdated = await PostsService.updatePost(id, post);
 
         if (!isUpdated) {
             res.sendStatus(HttpStatuses.NOT_FOUND);
