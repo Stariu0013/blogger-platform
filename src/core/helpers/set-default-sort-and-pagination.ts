@@ -7,8 +7,8 @@ export function setDefaultSortAndPagination<P = string>(
     query: Partial<PaginationAndSorting<P>>
 ): PaginationAndSorting<P> {
     return {
-        pageNumber: +query.pageNumber || paginationAndSortingDefault.pageNumber,
-        pageSize: +query.pageSize || paginationAndSortingDefault.pageSize,
+        pageNumber: query.pageNumber || paginationAndSortingDefault.pageNumber,
+        pageSize: query.pageSize || paginationAndSortingDefault.pageSize,
         sortDirection: query.sortDirection || paginationAndSortingDefault.sortDirection,
         sortBy: (query.sortBy || paginationAndSortingDefault.sortBy) as P,
     }
