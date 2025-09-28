@@ -7,6 +7,7 @@ export function setDefaultSortAndPagination<P = string>(
     query: Partial<PaginationAndSorting<P>>
 ): PaginationAndSorting<P> {
     return {
+        ...query,
         pageNumber: Number(query.pageNumber) || paginationAndSortingDefault.pageNumber,
         pageSize: Number(query.pageSize) || paginationAndSortingDefault.pageSize,
         sortDirection: query.sortDirection || paginationAndSortingDefault.sortDirection,

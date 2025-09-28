@@ -293,8 +293,6 @@ describe('Blogs API', () => {
         const res = await request(app).get(`${APP_ROUTES.BLOGS}?pageNumber=1&sortDirection=asc`).set(
             'Authorization', authToken
         );
-
-        console.log(res.body)
     });
 
     describe('Page size parameter', () => {
@@ -528,5 +526,140 @@ describe('GET /:id/posts - Pagination tests', () => {
             expect(new Date(firstPageItems[0].createdAt).getTime())
                 .toBeGreaterThan(new Date(secondPageItems[0].createdAt).getTime());
         }
+    });
+});
+
+describe('GET /:blogId/posts - 400 Error Tests', () => {
+    const app = express();
+    setupApp(app);
+
+    beforeAll(async () => {
+        await runDB(Settings.MONGO_URL);
+        await clearDb(app);
+    });
+
+    const testBlog: BlogInputModel = {
+        name: 'Test Blog',
+        description: 'Test Blog Description',
+        websiteUrl: 'https://testblog.com',
+    };
+
+    const authToken = generateBasicAuthToken();
+    let validBlogId: string;
+
+    beforeAll(async () => {
+        // Create a valid blog for testing
+        const createdBlog = await request(app)
+            .post(APP_ROUTES.BLOGS)
+            .set('Authorization', authToken)
+            .send(testBlog)
+            .expect(HttpStatuses.CREATED);
+
+        validBlogId = createdBlog.body.id;
+    });
+
+    it('should return 400 for invalid pageNumber (zero)', async () => {
+        await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${validBlogId}/posts?pageNumber=0`)
+            .expect(HttpStatuses.BAD_REQUEST);
+    });
+
+    it('should return 400 for invalid pageNumber (negative)', async () => {
+        await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${validBlogId}/posts?pageNumber=-1`)
+            .expect(HttpStatuses.BAD_REQUEST);
+    });
+
+    it('should return 400 for invalid pageNumber (non-integer)', async () => {
+        await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${validBlogId}/posts?pageNumber=abc`)
+            .expect(HttpStatuses.BAD_REQUEST);
+    });
+
+    it('should return 400 for invalid pageNumber (decimal)', async () => {
+        await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${validBlogId}/posts?pageNumber=1.5`)
+            .expect(HttpStatuses.BAD_REQUEST);
+    });
+
+    it('should return 400 for invalid pageSize (zero)', async () => {
+        await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${validBlogId}/posts?pageSize=0`)
+            .expect(HttpStatuses.BAD_REQUEST);
+    });
+
+    it('should return 400 for invalid pageSize (negative)', async () => {
+        await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${validBlogId}/posts?pageSize=-5`)
+            .expect(HttpStatuses.BAD_REQUEST);
+    });
+
+    it('should return 400 for invalid pageSize (exceeds maximum)', async () => {
+        await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${validBlogId}/posts?pageSize=101`)
+            .expect(HttpStatuses.BAD_REQUEST);
+    });
+
+    it('should return 400 for invalid pageSize (non-integer)', async () => {
+        await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${validBlogId}/posts?pageSize=invalid`)
+            .expect(HttpStatuses.BAD_REQUEST);
+    });
+
+    it('should return 400 for invalid pageSize (decimal)', async () => {
+        await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${validBlogId}/posts?pageSize=10.5`)
+            .expect(HttpStatuses.BAD_REQUEST);
+    });
+
+    it('should return 400 for invalid sortDirection', async () => {
+        await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${validBlogId}/posts?sortDirection=invalid`)
+            .expect(HttpStatuses.BAD_REQUEST);
+    });
+
+    it('should return 400 for invalid sortBy field', async () => {
+        await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${validBlogId}/posts?sortBy=invalidField`)
+            .expect(HttpStatuses.BAD_REQUEST);
+    });
+
+    it('should return 400 for multiple invalid parameters', async () => {
+        await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${validBlogId}/posts?pageNumber=0&pageSize=-1&sortDirection=invalid`)
+            .expect(HttpStatuses.BAD_REQUEST);
+    });
+
+    it('should return 400 for invalid blogId format', async () => {
+        await request(app)
+            .get(`${APP_ROUTES.BLOGS}/invalid-id/posts`)
+            .expect(HttpStatuses.BAD_REQUEST);
+    });
+
+    it('should return 400 for blogId that is too short', async () => {
+        await request(app)
+            .get(`${APP_ROUTES.BLOGS}/123/posts`)
+            .expect(HttpStatuses.BAD_REQUEST);
+    });
+
+    it('should return 400 for blogId with invalid characters', async () => {
+        await request(app)
+            .get(`${APP_ROUTES.BLOGS}/invalid-blog-id-format/posts`)
+            .expect(HttpStatuses.BAD_REQUEST);
+    });
+
+    it('should return 400 when pageSize is exactly at boundary (101)', async () => {
+        await request(app)
+            .get(`${APP_ROUTES.BLOGS}/${validBlogId}/posts?pageSize=101`)
+            .expect(HttpStatuses.BAD_REQUEST);
+    });
+
+    it('should return 400 when all data passed', async () => {
+        //?pageSize=&pageNumber=&sortDirection=&sortBy=
+        const res = await request(app)
+            .get(`${APP_ROUTES.BLOGS}/&pageSize=2`)
+            .expect(HttpStatuses.OK);
+
+        console.log(res.body);
     });
 });

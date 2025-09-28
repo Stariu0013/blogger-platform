@@ -16,7 +16,6 @@ const isContentValid = body('content')
 export const isBlogIdValid = body('blogId')
     .exists().withMessage('blogId must be provided')
     .isString().withMessage('blogId must be a string')
-    .isMongoId().withMessage('Id must be a valid mongo id')
 ;
 
 export const validatePostsInputData = [

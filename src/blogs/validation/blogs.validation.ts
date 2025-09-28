@@ -18,7 +18,6 @@ const isWebsiteUrlValid = body('websiteUrl')
 export const isIdValid = param('id')
     .exists().withMessage('Id must be provided')
     .isString().withMessage('Id must be a string')
-    .isMongoId().withMessage('Id must be a valid mongo id')
 ;
 
 export const validateBlogsInputData = [
