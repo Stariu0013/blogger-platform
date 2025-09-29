@@ -1,3 +1,4 @@
 export enum PostsSortFieldInput {
-    CreatedAt = 'createdAt'
+    CreatedAt = 'createdAt',
+    BlogName = 'blogName',
 }
