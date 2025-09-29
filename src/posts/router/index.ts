@@ -17,7 +17,6 @@ const postsRouter = Router({});
 postsRouter
     .get("/",
         paginationAndSortValidation(PostsSortFieldInput),
-        inputResultValidationMiddleware,
         getPostsListHandler
     )
     .get("/:id", isBlogIdValid, getPostByIdHandler)

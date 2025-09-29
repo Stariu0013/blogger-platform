@@ -21,7 +21,6 @@ const blogsRouter = Router({});
 blogsRouter
     .get("/",
         paginationAndSortValidation(BlogsSortFieldInput),
-        // inputResultValidationMiddleware,
         getBlogsListHandlerHandler
     )
     .get("/:id/posts", paginationAndSortValidation(PostsSortFieldInput), isIdValid, getPostsByBlogIdHandler)
