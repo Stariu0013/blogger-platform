@@ -20,9 +20,7 @@ class PostsRepository {
         const skip = pageSize * (pageNumber - 1);
 
         const posts = await postsCollection.find().skip(skip).sort({
-            [sortBy]: sortDirection === SortDirection.Asc ? 1 : -1,
-            createdAt: -1,
-            _id: 1
+            [sortBy]: sortDirection,
         }).limit(pageSize).toArray();
         const mappedPosts = posts.map(item => mapToPostViewModal(item));
 
