@@ -10,13 +10,13 @@ import {isBlogIdValid, validatePostsInputData} from "../validation/posts.validat
 import {
     paginationAndSortValidation
 } from "../../core/middlewares/validation/query-pagination-and-sorting.validation-middleware";
-import {BlogsSortFieldInput} from "../../blogs/router/input/blogs-sort-field.input";
+import {PostsSortFieldInput} from "./input/posts-sort-field.input";
 
 const postsRouter = Router({});
 
 postsRouter
     .get("/",
-        paginationAndSortValidation(BlogsSortFieldInput),
+        paginationAndSortValidation(PostsSortFieldInput),
         inputResultValidationMiddleware,
         getPostsListHandler
     )

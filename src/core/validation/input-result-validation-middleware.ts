@@ -17,7 +17,7 @@ const formatErrors = (error: ValidationError): ErrorMessage => {
 };
 
 export const inputResultValidationMiddleware = (
-    req: Request,
+    req: Request<{}, {}, {}, {}>,
     res: Response,
     next: NextFunction
 ) => {

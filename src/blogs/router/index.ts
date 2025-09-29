@@ -21,10 +21,10 @@ const blogsRouter = Router({});
 blogsRouter
     .get("/",
         paginationAndSortValidation(BlogsSortFieldInput),
-        inputResultValidationMiddleware,
+        // inputResultValidationMiddleware,
         getBlogsListHandlerHandler
     )
-    .get("/:id/posts", paginationAndSortValidation(PostsSortFieldInput), isIdValid, inputResultValidationMiddleware, getPostsByBlogIdHandler)
+    .get("/:id/posts", paginationAndSortValidation(PostsSortFieldInput), isIdValid, getPostsByBlogIdHandler)
     .get("/:id", isIdValid, inputResultValidationMiddleware, getBlogByIdHandler)
     .post('/:id/posts', superAdminGuardMiddleware, isIdValid, validatePostsInputData, inputResultValidationMiddleware, createPostToBlogHandler)
     .post('/', superAdminGuardMiddleware, validateBlogsInputData, inputResultValidationMiddleware, createBlogHandler)
