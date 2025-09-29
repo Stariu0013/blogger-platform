@@ -4,6 +4,7 @@ import {PostModel} from "../types/posts.dto";
 import {ObjectId, WithId} from "mongodb";
 import {PostsQueryInput} from "../router/input/posts-query.input";
 import {mapToPostViewModal} from "../router/mapper/map-to-post-view-modal";
+import {SortDirection} from "../../core/types/sort-direction";
 
 class PostsRepository {
     async findMany(queryDto: PostsQueryInput): Promise<{
@@ -19,7 +20,7 @@ class PostsRepository {
         const skip = pageSize * (pageNumber - 1);
 
         const posts = await postsCollection.find().skip(skip).sort({
-            [sortBy]: sortDirection,
+            [sortBy]: sortDirection === SortDirection.Asc ? 1 : -1,
             createdAt: -1,
             _id: 1
         }).limit(pageSize).toArray();
