@@ -19,6 +19,10 @@ class PostsRepository {
         } = queryDto;
         const skip = pageSize * (pageNumber - 1);
 
+        console.log({
+            queryDto
+        })
+
         const posts = await postsCollection.find().skip(skip).sort({
             [sortBy]: sortDirection,
         }).limit(pageSize).toArray();
@@ -41,7 +45,6 @@ class PostsRepository {
     async createPost(post: PostInputModel): Promise<WithId<PostModel>> {
         const newPost = {
             ...post,
-            blogName: post.title,
             createdAt: new Date().toISOString(),
         };
 
