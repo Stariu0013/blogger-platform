@@ -17,7 +17,7 @@ export const setupApp = (app: Express) => {
     app.use(APP_ROUTES.BLOGS, blogsRouter);
     app.use(APP_ROUTES.POSTS, postsRouter);
     app.use(APP_ROUTES.USERS, usersRouter);
-    app.use(APP_ROUTES.AUTH, authRouter);
+    app.use(APP_ROUTES.LOGIN, authRouter);
 
     return app;
 }
