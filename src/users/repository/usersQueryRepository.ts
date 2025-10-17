@@ -50,7 +50,19 @@ export const usersQueryRepository = {
             totalCount
         };
     },
-    async findByLoginOrEmail(login?: string, email?: string): Promise<WithId<UserViewModel> | null> {
+    async findByLoginOrEmail(loginOrEmail: string): Promise<WithId<UserViewModel> | null> {
+        return await usersCollection.findOne({
+            $or: [
+                {
+                    login: loginOrEmail
+                },
+                {
+                    email: loginOrEmail,
+                }
+            ]
+        });
+    },
+    async findByLoginAndEmail(login?: string, email?: string): Promise<WithId<UserViewModel> | null> {
         return await usersCollection.findOne({
             $or: [
                 {
@@ -62,14 +74,4 @@ export const usersQueryRepository = {
             ]
         });
     },
-    async findUserByEmail(email: string): Promise<WithId<UserViewModel> | null> {
-        return await usersCollection.findOne({
-            email,
-        });
-    },
-    async findUserByLogin(login: string): Promise<WithId<UserViewModel> | null> {
-        return await usersCollection.findOne({
-            login,
-        });
-    }
 };

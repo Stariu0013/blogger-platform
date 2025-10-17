@@ -12,7 +12,7 @@ export const createUserHandler = async (
     try {
         const { login, email } = req.body;
 
-        const isUserExists = await usersQueryRepository.findByLoginOrEmail(login, email);
+        const isUserExists = await usersQueryRepository.findByLoginAndEmail(login, email);
 
         if (isUserExists) {
             res.status(HttpStatuses.BAD_REQUEST).send({
@@ -24,7 +24,7 @@ export const createUserHandler = async (
 
         await usersService.createUser(req.body);
 
-        const createdUser = await usersQueryRepository.findByLoginOrEmail(login, email);
+        const createdUser = await usersQueryRepository.findByLoginAndEmail(login, email);
 
         if (!createdUser) {
             res.sendStatus(HttpStatuses.NOT_FOUND);
