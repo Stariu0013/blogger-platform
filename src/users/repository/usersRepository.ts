@@ -1,7 +1,7 @@
-import bcrypt from "bcrypt";
 import {usersCollection} from "../../core/db/mongo.db";
 import {UserInputModel, UserViewModel} from "../types/types.dto";
 import {ObjectId, WithId} from "mongodb";
+import {hashPassword} from "../../core/helpers/bcrypt";
 
 export const usersRepository = {
     async createUser(user: UserInputModel): Promise<void> {
@@ -9,7 +9,7 @@ export const usersRepository = {
             login, email, password
         } = user;
 
-        const hash = bcrypt.hashSync(password, 10);
+        const hash = hashPassword(password);
 
         const resultUserData = {
             login,

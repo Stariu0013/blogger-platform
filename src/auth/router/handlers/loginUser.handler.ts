@@ -21,7 +21,9 @@ export const loginUser = async (
 
     const { hash } = user;
 
-    const result = await comparePasswords(password, hash);
+    const result = await comparePasswords(password, hash!);
+
+    console.log(result)
 
     if (result) {
         res.sendStatus(HttpStatuses.NO_CONTENT);

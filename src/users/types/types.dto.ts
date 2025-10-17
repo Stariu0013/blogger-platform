@@ -8,6 +8,6 @@ export type UserViewModel = {
     id?: string;
     email: string;
     login: string;
-    hash: string;
+    hash?: string;
     createdAt: string;
 }

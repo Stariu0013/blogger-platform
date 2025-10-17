@@ -45,12 +45,6 @@ export const usersQueryRepository = {
         const users = await usersCollection.find(filter).skip(skip).sort({[sortBy]: sortDirection}).limit(pageSize).toArray();
         const totalCount = await usersCollection.countDocuments(filter);
 
-        console.log({
-            queryDto,
-            users,
-            filter
-        })
-
         return {
             items: users,
             totalCount
