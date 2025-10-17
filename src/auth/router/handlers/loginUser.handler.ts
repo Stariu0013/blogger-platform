@@ -15,7 +15,7 @@ export const loginUser = async (
     const user: WithId<UserViewModel> | null = await usersQueryRepository.findByLoginOrEmail(loginOrEmail);
 
     if (!user) {
-        res.sendStatus(HttpStatuses.NOT_FOUND);
+        res.sendStatus(HttpStatuses.NO_CONTENT);
 
         return;
     }
