@@ -15,6 +15,6 @@ const usersRouter = Router({});
 
 usersRouter.get('/', paginationAndSortValidation(UsersSortFieldInput), getUsersListHandler);
 usersRouter.post('/', superAdminGuardMiddleware, validateUserInputData, inputResultValidationMiddleware, createUserHandler);
-usersRouter.delete('/:id', isIdValid, inputResultValidationMiddleware, deleteUserByIdHandler);
+usersRouter.delete('/:id', superAdminGuardMiddleware, isIdValid, inputResultValidationMiddleware, deleteUserByIdHandler);
 
 export default usersRouter;

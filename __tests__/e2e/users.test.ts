@@ -12,9 +12,9 @@ describe('Users API', () => {
     const app = express();
     const authToken = generateBasicAuthToken();
     const testUser = {
-        login: 'test',
+        login: 'test login',
         email: 'test@gmail.com',
-        password: 'test'
+        password: 'Password'
     };
 
     setupApp(app);

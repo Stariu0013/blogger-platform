@@ -19,21 +19,37 @@ export const usersQueryRepository = {
         const skip = pageSize * (pageNumber - 1);
         const filter: any = {};
 
+        const orCondition = [];
+
         if (searchLoginTerm) {
-            filter.login = {
-                $regex: searchLoginTerm,
-                $options: "i"
-            };
+            orCondition.push({
+                login: {
+                    $regex: searchLoginTerm,
+                    $options: "i"
+                }
+            });
         }
         if (searchEmailTerm) {
-            filter.email = {
-                $regex: searchEmailTerm,
-                $options: "i"
-            }
+            orCondition.push({
+                email: {
+                    $regex: searchEmailTerm,
+                    $options: "i"
+                }
+            });
+        }
+
+        if (orCondition.length > 0) {
+            filter.$or = orCondition;
         }
 
         const users = await usersCollection.find(filter).skip(skip).sort({[sortBy]: sortDirection}).limit(pageSize).toArray();
         const totalCount = await usersCollection.countDocuments(filter);
+
+        console.log({
+            queryDto,
+            users,
+            filter
+        })
 
         return {
             items: users,
