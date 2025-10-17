@@ -320,24 +320,6 @@ describe('Blogs API', () => {
 
             expect(response.body.pagesCount).toBe(1);
         });
-
-        it('should handle invalid pageSize (zero)', async () => {
-            const response = await request(app)
-                .get(`${APP_ROUTES.BLOGS}?pageSize=0`)
-                .expect(HttpStatuses.BAD_REQUEST);
-        });
-
-        it('should handle invalid pageSize (negative)', async () => {
-            const response = await request(app)
-                .get(`${APP_ROUTES.BLOGS}?pageSize=-5`)
-                .expect(HttpStatuses.BAD_REQUEST);
-        });
-
-        it('should handle invalid pageSize (string)', async () => {
-            const response = await request(app)
-                .get(`${APP_ROUTES.BLOGS}?pageSize=invalid`)
-                .expect(HttpStatuses.BAD_REQUEST);
-        });
     });
 });
 

@@ -2,7 +2,7 @@ import {HttpStatuses} from "../../../core/types/http-statuses";
 import {Request, Response} from "express";
 import {PostInputModel} from "../../types/post-input.model";
 import {mapToPostViewModal} from "../mapper/map-to-post-view-modal";
-import {PostsService} from "../../application/posts.application";
+import {postsQueryRepository} from "../../repositories/posts-query.repository";
 
 export const getPostByIdHandler = async (
     req: Request<{id: string}, PostInputModel, {}, {}>, res: Response
@@ -10,7 +10,7 @@ export const getPostByIdHandler = async (
     try {
         const {id} = req.params;
 
-        const post = await PostsService.findByIdOrFail(id);
+        const post = await postsQueryRepository.findByIdOrFail(id);
 
         if (!post) {
             res.sendStatus(HttpStatuses.NOT_FOUND);

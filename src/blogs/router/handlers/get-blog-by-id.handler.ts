@@ -2,7 +2,7 @@ import {HttpStatuses} from "../../../core/types/http-statuses";
 import {Request, Response} from "express";
 import {BlogModel} from "../../types/blogs.dto";
 import {mapToBlogViewModal} from "../mapper/map-to-blog-view-modal";
-import {BlogsService} from "../../application/blogs.application";
+import {blogsQueryRepository} from "../../repositories/blogs-query.repository";
 
 export const getBlogByIdHandler = async (
     req: Request<{id: string}, BlogModel, {}, {}>, res: Response
@@ -10,7 +10,7 @@ export const getBlogByIdHandler = async (
     try {
         const {id} = req.params;
 
-        const blog = await BlogsService.findByIdOrFail(id);
+        const blog = await blogsQueryRepository.findByIdOrFail(id);
 
         if (!blog) {
             res.sendStatus(HttpStatuses.NOT_FOUND);

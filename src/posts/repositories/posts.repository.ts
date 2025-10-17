@@ -4,44 +4,8 @@ import {PostModel} from "../types/posts.dto";
 import {ObjectId, WithId} from "mongodb";
 import {PostsQueryInput} from "../router/input/posts-query.input";
 import {mapToPostViewModal} from "../router/mapper/map-to-post-view-modal";
-import {SortDirection} from "../../core/types/sort-direction";
 
 class PostsRepository {
-    async findMany(queryDto: PostsQueryInput): Promise<{
-        items: PostModel[],
-        totalCount: number
-    }> {
-        const {
-            pageSize,
-            sortBy,
-            sortDirection,
-            pageNumber
-        } = queryDto;
-        const skip = pageSize * (pageNumber - 1);
-
-        console.log({
-            queryDto
-        })
-
-        const posts = await postsCollection.find().skip(skip).sort({
-            [sortBy]: sortDirection,
-        }).limit(pageSize).toArray();
-        const mappedPosts = posts.map(item => mapToPostViewModal(item));
-
-        const totalCount = await postsCollection.countDocuments();
-
-        return {
-            items: mappedPosts,
-            totalCount
-        };
-    }
-
-    async findByIdOrFail(id: string): Promise<WithId<PostModel> | null> {
-        return postsCollection.findOne({
-            _id: new ObjectId(id)
-        });
-    }
-
     async createPost(post: PostInputModel): Promise<WithId<PostModel>> {
         const newPost = {
             ...post,

@@ -5,7 +5,7 @@ import {BlogModel} from "../../types/blogs.dto";
 import {setDefaultSortAndPagination} from "../../../core/helpers/set-default-sort-and-pagination";
 import {BlogsQueryInput} from "../input/blogs-query.input";
 import {mapToPostsListMappedOutput} from "../../../posts/router/mapper/map-to-posts-list-mapped-output";
-import {BlogsService} from "../../application/blogs.application";
+import {blogsQueryRepository} from "../../repositories/blogs-query.repository";
 
 export const getPostsByBlogIdHandler = async (
     req: Request<{id: string}, BlogModel, {}, {}>, res: Response
@@ -18,7 +18,7 @@ export const getPostsByBlogIdHandler = async (
             return
         }
 
-        const blogItem = await BlogsService.findByIdOrFail(id)
+        const blogItem = await blogsQueryRepository.findByIdOrFail(id)
 
         if (!blogItem) {
             res.sendStatus(HttpStatuses.NOT_FOUND);
@@ -30,7 +30,7 @@ export const getPostsByBlogIdHandler = async (
         const {
             items,
             totalCount,
-        } = await BlogsRepository.findPostsByBlogId(id, queryInput);
+        } = await blogsQueryRepository.findPostsByBlogId(id, queryInput);
 
         const postsByBlogIdListOutput = mapToPostsListMappedOutput(items, {
             totalCount,

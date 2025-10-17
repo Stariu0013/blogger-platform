@@ -3,6 +3,7 @@ import {BlogModel} from "../../types/blogs.dto";
 import {createErrorMessage} from "../../../core/utils/creaste-error-message";
 import {HttpStatuses} from "../../../core/types/http-statuses";
 import {BlogsService} from "../../application/blogs.application";
+import {blogsQueryRepository} from "../../repositories/blogs-query.repository";
 
 export const deleteBlogHandler = async (
     req: Request<{id: string}, BlogModel, {}, {}>,
@@ -11,7 +12,7 @@ export const deleteBlogHandler = async (
     try {
         const {id} = req.params;
 
-        const blog = await BlogsService.findByIdOrFail(id);
+        const blog = await blogsQueryRepository.findByIdOrFail(id);
 
         if (!blog) {
             res.status(HttpStatuses.NOT_FOUND).send(createErrorMessage(

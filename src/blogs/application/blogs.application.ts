@@ -5,19 +5,9 @@ import {WithId} from "mongodb";
 import {BlogsQueryInput} from "../router/input/blogs-query.input";
 import {PostInputModel} from "../../posts/types/post-input.model";
 import {PostModel} from "../../posts/types/posts.dto";
+import {blogsQueryRepository} from "../repositories/blogs-query.repository";
 
 export const BlogsService = {
-    async findMany(queryDto: BlogsQueryInput): Promise<{
-        items: BlogModel[],
-        totalCount: number
-    }> {
-        return await blogsRepository.findMany(queryDto);
-    },
-
-    async findByIdOrFail(id: string): Promise<WithId<BlogModel> | null> {
-        return await blogsRepository.findByIdOrFail(id);
-    },
-
     async createBlog(blog: BlogInputModel): Promise<WithId<BlogModel>> {
         return await blogsRepository.createBlog(blog);
     },

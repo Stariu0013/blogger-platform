@@ -3,11 +3,10 @@ import {APP_ROUTES} from "./core/routes";
 import testingRouter from "./testing/router/testing.router";
 import blogsRouter from "./blogs/router";
 import postsRouter from "./posts/router";
+import usersRouter from "./users/router";
 
 export const setupApp = (app: Express) => {
     app.use(express.json());
-
-    const PORT = process.env.PORT || 3000;
 
     app.get('/', (req: Request, res: Response) => {
         res.send('Hello World');
@@ -16,6 +15,7 @@ export const setupApp = (app: Express) => {
     app.use(APP_ROUTES.TESTING, testingRouter);
     app.use(APP_ROUTES.BLOGS, blogsRouter);
     app.use(APP_ROUTES.POSTS, postsRouter);
+    app.use(APP_ROUTES.USERS, usersRouter);
 
     return app;
 }

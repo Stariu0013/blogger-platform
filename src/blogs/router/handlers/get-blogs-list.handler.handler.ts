@@ -1,9 +1,9 @@
 import {HttpStatuses} from "../../../core/types/http-statuses";
 import {Request, Response} from "express";
-import {BlogsService} from "../../application/blogs.application";
 import {BlogsQueryInput} from "../input/blogs-query.input";
 import {setDefaultSortAndPagination} from "../../../core/helpers/set-default-sort-and-pagination";
 import {mapToBlogsListMappedOutput} from "../mapper/map-to-blogs-list-mapped-output";
+import {blogsQueryRepository} from "../../repositories/blogs-query.repository";
 
 export const getBlogsListHandlerHandler = async (
     req: Request,
@@ -12,7 +12,7 @@ export const getBlogsListHandlerHandler = async (
     try {
         const queryInput = setDefaultSortAndPagination(req.query as unknown as BlogsQueryInput);
 
-        const {totalCount, items} = await BlogsService.findMany(queryInput);
+        const {totalCount, items} = await blogsQueryRepository.findMany(queryInput);
 
         const blogsListOutput = mapToBlogsListMappedOutput(items, {
             totalCount,

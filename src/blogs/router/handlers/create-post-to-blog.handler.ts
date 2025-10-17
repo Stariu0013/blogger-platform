@@ -3,6 +3,7 @@ import {HttpStatuses} from "../../../core/types/http-statuses";
 import {PostInputModel} from "../../../posts/types/post-input.model";
 import {BlogsService} from "../../application/blogs.application";
 import {mapToPostViewModal} from "../../../posts/router/mapper/map-to-post-view-modal";
+import {blogsQueryRepository} from "../../repositories/blogs-query.repository";
 
 export const createPostToBlogHandler = async (
     req: Request<{id: string}, {}, PostInputModel>,
@@ -17,7 +18,7 @@ export const createPostToBlogHandler = async (
             return
         }
 
-        const blogItem = await BlogsService.findByIdOrFail(blogId);
+        const blogItem = await blogsQueryRepository.findByIdOrFail(blogId);
 
         if (!blogItem) {
             res.sendStatus(HttpStatuses.NOT_FOUND);
