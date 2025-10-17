@@ -1,17 +1,18 @@
 import {Request, Response} from "express";
-import {UserInputModel, UserViewModel} from "../../../users/types/types.dto";
+import {UserViewModel} from "../../../users/types/types.dto";
 import {usersQueryRepository} from "../../../users/repository/usersQueryRepository";
 import {HttpStatuses} from "../../../core/types/http-statuses";
 import {WithId} from "mongodb";
 import {comparePasswords} from "../../../core/helpers/bcrypt";
+import {AuthInputType} from "../../types/auth.types";
 
 export const loginUser = async (
-    req: Request<{}, {}, UserInputModel>,
+    req: Request<{}, {}, AuthInputType>,
     res: Response,
 ) => {
-    const {login, password} = req.body;
+    const {loginOrEmail, password} = req.body;
 
-    const user: WithId<UserViewModel> | null = await usersQueryRepository.findByLoginOrEmail(login);
+    const user: WithId<UserViewModel> | null = await usersQueryRepository.findByLoginOrEmail(loginOrEmail);
 
     if (!user) {
         res.sendStatus(HttpStatuses.NOT_FOUND);
@@ -19,7 +20,7 @@ export const loginUser = async (
         return;
     }
 
-    const { hash } = user;
+    const {hash} = user;
 
     const result = await comparePasswords(password, hash!);
 
