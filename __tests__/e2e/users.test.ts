@@ -119,13 +119,13 @@ describe('Users API', () => {
             authorization: authToken
         }).send(testUser);
 
-        const res = await request(app).post(APP_ROUTES.AUTH).send(testUser);
+        const res = await request(app).post(APP_ROUTES.LOGIN).send(testUser);
 
         expect(res.status).toBe(HttpStatuses.NO_CONTENT);
     });
 
     it('should return error on user login', async () => {
-        const res = await request(app).post(APP_ROUTES.AUTH).send(testUser);
+        const res = await request(app).post(APP_ROUTES.LOGIN).send(testUser);
 
         expect(res.status).toBe(HttpStatuses.NOT_FOUND);
     });
