@@ -56,7 +56,7 @@ export const usersQueryRepository = {
             totalCount
         };
     },
-    async findByLoginOrEmail(login: string, email: string): Promise<WithId<UserViewModel> | null> {
+    async findByLoginOrEmail(login?: string, email?: string): Promise<WithId<UserViewModel> | null> {
         return await usersCollection.findOne({
             $or: [
                 {
