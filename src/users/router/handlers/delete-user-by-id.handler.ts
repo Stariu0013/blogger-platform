@@ -1,6 +1,7 @@
 import {Request, Response} from "express";
 import {HttpStatuses} from "../../../core/types/http-statuses";
 import {usersService} from "../../application/usersService";
+import {usersQueryRepository} from "../../repository/usersQueryRepository";
 
 export const deleteUserByIdHandler = async (
     req: Request<{ id: string }>,
@@ -9,7 +10,7 @@ export const deleteUserByIdHandler = async (
     try {
         const { id } = req.params;
 
-        const isUserExists = await usersService.findUserById(id);
+        const isUserExists = await usersQueryRepository.findUserById(id);
 
         if (!isUserExists) {
             res.sendStatus(HttpStatuses.NOT_FOUND);

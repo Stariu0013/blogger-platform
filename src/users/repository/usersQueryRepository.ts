@@ -1,5 +1,5 @@
 import {UsersQueryInput} from "../router/input/users-query.input";
-import {WithId} from "mongodb";
+import {ObjectId, WithId} from "mongodb";
 import {UserViewModel} from "../types/types.dto";
 import {usersCollection} from "../../core/db/mongo.db";
 
@@ -72,6 +72,11 @@ export const usersQueryRepository = {
                     email,
                 }
             ]
+        });
+    },
+    async findUserById(id: string): Promise<WithId<UserViewModel> | null> {
+        return await usersCollection.findOne({
+            _id: new ObjectId(id)
         });
     },
 };

@@ -5,6 +5,7 @@ import blogsRouter from "./blogs/router";
 import postsRouter from "./posts/router";
 import usersRouter from "./users/router";
 import {authRouter} from "./auth/router";
+import {commentRouter} from "./comments/router";
 
 export const setupApp = (app: Express) => {
     app.use(express.json());
@@ -18,6 +19,7 @@ export const setupApp = (app: Express) => {
     app.use(APP_ROUTES.POSTS, postsRouter);
     app.use(APP_ROUTES.USERS, usersRouter);
     app.use(APP_ROUTES.LOGIN, authRouter);
+    app.use(APP_ROUTES.COMMENTS, commentRouter);
 
     return app;
 }

@@ -18,6 +18,11 @@ export const isBlogIdValid = body('blogId')
     .isString().withMessage('blogId must be a string')
 ;
 
+export const isPostIdValid = body('postId')
+    .exists().withMessage('postId must be provided')
+    .isString().withMessage('postId must be a string')
+;
+
 export const validatePostsInputData = [
     isTitleValid,
     isShortDescriptionValid,

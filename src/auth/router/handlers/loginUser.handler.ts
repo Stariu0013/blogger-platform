@@ -5,12 +5,18 @@ import {HttpStatuses} from "../../../core/types/http-statuses";
 import {WithId} from "mongodb";
 import {comparePasswords} from "../../../core/helpers/bcrypt";
 import {AuthInputType} from "../../types/auth.types";
+import {jwtService} from "../../application/jwtService";
 
 export const loginUser = async (
     req: Request<{}, {}, AuthInputType>,
     res: Response,
 ) => {
     const {loginOrEmail, password} = req.body;
+
+    console.log({
+        loginOrEmail,
+        password,
+    })
 
     const user: WithId<UserViewModel> | null = await usersQueryRepository.findByLoginOrEmail(loginOrEmail);
 
@@ -25,7 +31,9 @@ export const loginUser = async (
     const result = await comparePasswords(password, hash!);
 
     if (result) {
-        res.sendStatus(HttpStatuses.NO_CONTENT);
+        const token = jwtService.createJWT(user);
+
+        res.status(HttpStatuses.CREATED).send(token);
 
         return;
     }

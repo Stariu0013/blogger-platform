@@ -22,11 +22,6 @@ export const usersRepository = {
 
         return;
     },
-    async findUserById(id: string): Promise<WithId<UserViewModel> | null> {
-        return await usersCollection.findOne({
-            _id: new ObjectId(id)
-        });
-    },
     async deleteUserById(id: string): Promise<void> {
         const deletedUser = await usersCollection.deleteOne({
             _id: new ObjectId(id)
