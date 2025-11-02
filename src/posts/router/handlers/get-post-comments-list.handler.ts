@@ -23,7 +23,7 @@ export const getPostCommentsListHandler = async (
 
         const queryInput = setDefaultSortAndPagination(req.query as unknown as CommentsQueryInput);
 
-        const {totalCount, items} = await commentsQueryRepository.getAllUserComments(queryInput, postId);
+        const {totalCount, items} = await commentsQueryRepository.getAllPostComments(queryInput, postId);
 
         const mappedComments = mapToCommentListMappedOutput(items, {
             totalCount: totalCount,

@@ -9,7 +9,7 @@ export const commentsQueryRepository = {
             _id: new ObjectId(id)
         });
     },
-    async getAllUserComments(queryDto: CommentsQueryInput, postId: string): Promise<{
+    async getAllPostComments(queryDto: CommentsQueryInput, postId: string): Promise<{
         items: WithId<CommentViewModal>[],
         totalCount: number
     }> {
@@ -27,7 +27,7 @@ export const commentsQueryRepository = {
             [sortBy]: sortDirection,
         }).limit(pageSize).toArray();
 
-        const totalCount = await commentsCollection.countDocuments();
+        const totalCount = await commentsCollection.countDocuments({ postId: new ObjectId(postId)});
 
         return {
             items: comments,
