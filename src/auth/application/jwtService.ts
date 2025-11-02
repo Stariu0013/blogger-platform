@@ -6,7 +6,7 @@ import {WithId} from "mongodb";
 export const jwtService = {
     createJWT(user: WithId<UserViewModel>): string {
         const token = jwt.sign({
-                userId: user._id,
+                userId: user._id.toString(),
             },
             Settings.JWT_SECRET,
             {
