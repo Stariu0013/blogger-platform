@@ -40,7 +40,7 @@ describe('auth', () => {
 
         accessToken = loginResponse.body.accessToken;
 
-        expect(loginResponse.status).toBe(HttpStatuses.CREATED);
+        expect(loginResponse.status).toBe(HttpStatuses.OK);
         expect(accessToken).toBeDefined();
     });
 

@@ -28,7 +28,7 @@ export const loginUser = async (
     if (result) {
         const token = jwtService.createJWT(user);
 
-        res.status(HttpStatuses.CREATED).send({
+        res.status(HttpStatuses.OK).send({
             accessToken: token,
         });
 

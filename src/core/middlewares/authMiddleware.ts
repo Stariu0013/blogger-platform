@@ -22,7 +22,7 @@ export const authMiddleware = async (
         return;
     }
 
-    const jwtPayload = jwtService.findUserByToken(token);
+    const jwtPayload = await jwtService.findUserByToken(token);
 
     if (!jwtPayload) {
         res.sendStatus(HttpStatuses.UNAUTHORIZED);
