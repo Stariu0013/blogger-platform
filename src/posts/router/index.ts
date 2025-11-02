@@ -24,7 +24,7 @@ postsRouter
         paginationAndSortValidation(PostsSortFieldInput),
         getPostsListHandler
     )
-    .get("/:postId/comments", authMiddleware, isPostIdValid, paginationAndSortValidation(CommentsSortFieldInput), inputResultValidationMiddleware, getPostCommentsListHandler)
+    .get("/:postId/comments", isPostIdValid, paginationAndSortValidation(CommentsSortFieldInput), inputResultValidationMiddleware, getPostCommentsListHandler)
     .get("/:id", isBlogIdValid, getPostByIdHandler)
     .post('/', superAdminGuardMiddleware, validatePostsInputData, inputResultValidationMiddleware, createPostHandler)
     .post('/:postId/comments', authMiddleware, validationCommentsInputData, inputResultValidationMiddleware, createPostCommentHandler)

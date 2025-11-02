@@ -13,6 +13,12 @@ export const deleteCommentById = async (
 
         const comment = await commentsQueryRepository.getCommentById(commentId);
 
+        if (!comment) {
+            res.sendStatus(HttpStatuses.NOT_FOUND);
+            
+            return;
+        }
+
         if (comment!.commentatorInfo.userId !== user?._id.toString()) {
             res.sendStatus(HttpStatuses.FORBIDDEN);
 
