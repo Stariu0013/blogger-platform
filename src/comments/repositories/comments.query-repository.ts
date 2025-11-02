@@ -1,10 +1,15 @@
-import {commentsCollection, postsCollection} from "../../core/db/mongo.db";
+import {commentsCollection} from "../../core/db/mongo.db";
 import {CommentsQueryInput} from "../input/comments-query.input";
 import {CommentViewModal} from "../types";
-import {WithId} from "mongodb";
+import {ObjectId, WithId} from "mongodb";
 
 export const commentsQueryRepository = {
-    async getAllUserComments(queryDto: CommentsQueryInput, userId: string): Promise<{
+    async getCommentById(id: string): Promise<WithId<CommentViewModal> | null> {
+        return await commentsCollection.findOne({
+            _id: new ObjectId(id)
+        });
+    },
+    async getAllUserComments(queryDto: CommentsQueryInput, postId: string): Promise<{
         items: WithId<CommentViewModal>[],
         totalCount: number
     }> {
@@ -17,15 +22,12 @@ export const commentsQueryRepository = {
         const skip = pageSize * (pageNumber - 1);
 
         const comments = await commentsCollection.find({
-            commentatorInfo: {
-                userId
-            }
+            postId: new ObjectId(postId)
         }).skip(skip).sort({
             [sortBy]: sortDirection,
         }).limit(pageSize).toArray();
 
-
-        const totalCount = await postsCollection.countDocuments();
+        const totalCount = await commentsCollection.countDocuments();
 
         return {
             items: comments,

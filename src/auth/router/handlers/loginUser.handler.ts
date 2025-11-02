@@ -13,11 +13,6 @@ export const loginUser = async (
 ) => {
     const {loginOrEmail, password} = req.body;
 
-    console.log({
-        loginOrEmail,
-        password,
-    })
-
     const user: WithId<UserViewModel> | null = await usersQueryRepository.findByLoginOrEmail(loginOrEmail);
 
     if (!user) {
@@ -33,7 +28,9 @@ export const loginUser = async (
     if (result) {
         const token = jwtService.createJWT(user);
 
-        res.status(HttpStatuses.CREATED).send(token);
+        res.status(HttpStatuses.CREATED).send({
+            accessToken: token,
+        });
 
         return;
     }

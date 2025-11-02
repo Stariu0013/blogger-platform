@@ -1,13 +1,14 @@
 import {UserViewModel} from "../../users/types/types.dto";
 import {commentsCollection} from "../../core/db/mongo.db";
-import {ObjectId} from "mongodb";
+import {ObjectId, WithId} from "mongodb";
 
 export const commentsRepository = {
-    async createComment(content: string, userInfo: UserViewModel) {
+    async createComment(postId: string, content: string, userInfo: WithId<UserViewModel>) {
         const newComment = {
             content,
+            postId: new ObjectId(postId),
             commentatorInfo: {
-                userId: userInfo.id!,
+                userId: userInfo._id.toString(),
                 userLogin: userInfo.login
             },
             createdAt: new Date().toISOString(),
@@ -20,12 +21,22 @@ export const commentsRepository = {
             _id: insertResult.insertedId,
         };
     },
-    async deleteCommentById(id: string, userId: string) {
-        await commentsCollection.deleteOne({
+    async deleteCommentById(id: string) {
+        const res = await commentsCollection.deleteOne({
+            _id: new ObjectId(id)
+        });
+
+        return res.deletedCount >= 1;
+    },
+    async updateCommentById({id, content}: { id: string, content: string }) {
+        const updateResult = await commentsCollection.updateOne({
             _id: new ObjectId(id),
-            commentatorInfo: {
-                userId
+        }, {
+            $set: {
+                content
             }
-        })
+        });
+
+        return updateResult.matchedCount >= 1;
     }
 };

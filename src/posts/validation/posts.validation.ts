@@ -1,4 +1,4 @@
-import {body} from 'express-validator';
+import {body, param} from 'express-validator';
 
 const isTitleValid = body('title')
     .isString().withMessage('Title must be a string')
@@ -18,7 +18,7 @@ export const isBlogIdValid = body('blogId')
     .isString().withMessage('blogId must be a string')
 ;
 
-export const isPostIdValid = body('postId')
+export const isPostIdValid = param('postId')
     .exists().withMessage('postId must be provided')
     .isString().withMessage('postId must be a string')
 ;

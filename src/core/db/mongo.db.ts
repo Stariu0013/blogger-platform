@@ -10,7 +10,7 @@ const BLOGS_COLLECTION_NAME = "blogs";
 const USERS_COLLECTION_NAME = "users";
 const COMMENTS_COLLECTION_NAME = "comments";
 
-let mongoClient: MongoClient
+let mongoClient: MongoClient;
 export let postsCollection: Collection<PostModel>;
 export let blogsCollection: Collection<BlogModel>;
 export let usersCollection: Collection<UserViewModel>;

@@ -9,6 +9,7 @@ import {PostInputModel} from "../../src/posts/types/post-input.model";
 import {clearDb} from "../utils/clearDb";
 import runDB from "../../src/core/db/mongo.db";
 import {Settings} from "../../src/core/settings/settings";
+import {createNewUserAndReturnAccessToken} from "../utils/createNewUser";
 
 describe('Posts API', () => {
     const app = express();
@@ -19,14 +20,17 @@ describe('Posts API', () => {
         description: 'Blog 1 description',
         websiteUrl: 'https://blog1.com',
     };
-
     let testPost: PostInputModel = {
         content: 'test content TEST',
         shortDescription: 'test description',
         title: 'test title',
     };
+    const testComment = {
+        content: 'lorem ipsum lorem ipsum lorem ipsum',
+    }
 
     const authToken = generateBasicAuthToken();
+    let accessToken = '';
 
     beforeAll(async () => {
         await runDB(Settings.MONGO_URL);
@@ -34,8 +38,14 @@ describe('Posts API', () => {
     });
 
     beforeEach(async () => {
-        await request(app).delete(APP_ROUTES.TESTING + '/all-data').expect(HttpStatuses.NO_CONTENT);
+        await clearDb(app);
+
+        accessToken = await createNewUserAndReturnAccessToken(app);
     });
+
+    afterAll(async () => {
+        await clearDb(app);
+    })
 
     it(`get auth error on delete post`, async () => {
         const createdPost = await request(app).post(APP_ROUTES.POSTS)
@@ -78,6 +88,221 @@ describe('Posts API', () => {
         });
         expect(res.status).toBe(HttpStatuses.OK);
     });
+
+    it(`should create new post and return empty array of comments`, async () => {
+        const createdPost = await request(app).post(`${APP_ROUTES.POSTS}`).set(
+            'Authorization', authToken
+        ).send(testPost);
+
+        expect(createdPost.status).toBe(HttpStatuses.CREATED);
+        const targetId = createdPost.body.id;
+
+        const commentsRes = await request(app).get(`${APP_ROUTES.POSTS}/${targetId}/comments`).set({
+            authorization: `Bearer ${accessToken}`
+        });
+
+        expect(commentsRes.body).toEqual(
+            {
+                "items": [],
+                "page": 1,
+                "pageSize": 10,
+                "pagesCount": 0,
+                "totalCount": 0
+            }
+        );
+        expect(commentsRes.status).toBe(HttpStatuses.OK);
+    });
+
+    it(`should create new post and return error for incorrect postId on get all comments`, async () => {
+        const createdPost = await request(app).post(`${APP_ROUTES.POSTS}`).set(
+            'Authorization', authToken
+        ).send(testPost);
+
+        expect(createdPost.status).toBe(HttpStatuses.CREATED);
+        const targetId = "63189b06003380064c4193be";
+
+        const commentsRes = await request(app).get(`${APP_ROUTES.POSTS}/${targetId}/comments`).set({
+            authorization: `Bearer ${accessToken}`
+        });
+
+        expect(commentsRes.status).toBe(HttpStatuses.NOT_FOUND);
+    });
+
+    it(`should create new post and comment`, async () => {
+        const createdPost = await request(app).post(APP_ROUTES.POSTS).set(
+            'Authorization', authToken
+        ).send(testPost);
+
+        expect(createdPost.status).toBe(HttpStatuses.CREATED);
+        const targetId = createdPost.body.id;
+
+        const createCommentRes = await request(app).post(`${APP_ROUTES.POSTS}/${targetId}/comments`).set({
+            authorization: `Bearer ${accessToken}`
+        }).send(testComment);
+
+        expect(createCommentRes.status).toBe(HttpStatuses.CREATED);
+
+        const getCommentsRes = await request(app).get(`${APP_ROUTES.POSTS}/${targetId}/comments`).set({
+            authorization: `Bearer ${accessToken}`
+        });
+
+        expect(getCommentsRes.status).toBe(HttpStatuses.OK);
+        expect(getCommentsRes.body.items.length).toBe(1);
+    });
+
+    it(`should create new post with comment and return comment by id`, async () => {
+        const createdPost = await request(app).post(APP_ROUTES.POSTS).set(
+            'Authorization', authToken
+        ).send(testPost);
+
+        expect(createdPost.status).toBe(HttpStatuses.CREATED);
+        const targetId = createdPost.body.id;
+
+        const createCommentRes = await request(app).post(`${APP_ROUTES.POSTS}/${targetId}/comments`).set({
+            authorization: `Bearer ${accessToken}`
+        }).send(testComment);
+
+        expect(createCommentRes.status).toBe(HttpStatuses.CREATED)
+
+        const commentId = createCommentRes.body.id;
+
+        const getCommentResponse = await request(app).get(`${APP_ROUTES.COMMENTS}/${commentId}`).set({
+            authorization: `Bearer ${accessToken}`
+        });
+
+        expect(getCommentResponse.status).toBe(HttpStatuses.OK);
+        expect(getCommentResponse.body).toEqual({
+            ...createCommentRes.body
+        });
+    });
+
+    it(`should create new post with comment and delete comment by id`, async () => {
+        const createdPost = await request(app).post(APP_ROUTES.POSTS).set(
+            'Authorization', authToken
+        ).send(testPost);
+
+        expect(createdPost.status).toBe(HttpStatuses.CREATED);
+        const targetId = createdPost.body.id;
+
+        const createCommentRes = await request(app).post(`${APP_ROUTES.POSTS}/${targetId}/comments`).set({
+            authorization: `Bearer ${accessToken}`
+        }).send(testComment);
+
+        expect(createCommentRes.status).toBe(HttpStatuses.CREATED)
+
+        const commentId = createCommentRes.body.id;
+
+        const deleteCommentResponse = await request(app).delete(`${APP_ROUTES.COMMENTS}/${commentId}`).set({
+            authorization: `Bearer ${accessToken}`
+        });
+
+        expect(deleteCommentResponse.status).toBe(HttpStatuses.NO_CONTENT);
+
+        const getCommentResponse = await request(app).get(`${APP_ROUTES.COMMENTS}/${commentId}`).set({
+            authorization: `Bearer ${accessToken}`
+        });
+
+        expect(getCommentResponse.status).toBe(HttpStatuses.NOT_FOUND);
+    });
+
+    it(`should create new post with comment and update comment by id`, async () => {
+        const createdPost = await request(app).post(APP_ROUTES.POSTS).set(
+            'Authorization', authToken
+        ).send(testPost);
+
+        expect(createdPost.status).toBe(HttpStatuses.CREATED);
+        const targetId = createdPost.body.id;
+
+        const createCommentRes = await request(app).post(`${APP_ROUTES.POSTS}/${targetId}/comments`).set({
+            authorization: `Bearer ${accessToken}`
+        }).send(testComment);
+
+        expect(createCommentRes.status).toBe(HttpStatuses.CREATED)
+
+        const commentId = createCommentRes.body.id;
+        const newContent = 'new content lorem ipsumipsumipsumipsum';
+
+        const updateCommentResponse = await request(app).put(`${APP_ROUTES.COMMENTS}/${commentId}`).set({
+            authorization: `Bearer ${accessToken}`
+        }).send({
+            content: newContent
+        });
+
+        expect(updateCommentResponse.status).toBe(HttpStatuses.NO_CONTENT);
+
+        const getCommentResponse = await request(app).get(`${APP_ROUTES.COMMENTS}/${commentId}`).set({
+            authorization: `Bearer ${accessToken}`
+        });
+
+        expect(getCommentResponse.status).toBe(HttpStatuses.OK);
+        expect(getCommentResponse.body).toEqual({
+            ...createCommentRes.body,
+            content: newContent
+        });
+    });
+
+    it(`should create new post and return error on incorrect comment id`, async () => {
+        const createdPost = await request(app).post(APP_ROUTES.POSTS).set(
+            'Authorization', authToken
+        ).send(testPost);
+
+        expect(createdPost.status).toBe(HttpStatuses.CREATED);
+        const targetId = createdPost.body.id;
+
+        const createCommentRes = await request(app).post(`${APP_ROUTES.POSTS}/${targetId}/comments`).set({
+            authorization: `Bearer ${accessToken}`
+        }).send(testComment);
+
+        expect(createCommentRes.status).toBe(HttpStatuses.CREATED)
+
+        const getCommentResponse = await request(app).get(`${APP_ROUTES.COMMENTS}/${targetId}`).set({
+            authorization: `Bearer ${accessToken}`
+        });
+
+        expect(getCommentResponse.status).toBe(HttpStatuses.NOT_FOUND);
+    });
+
+    it(`should return error on incorrect comment data`, async () => {
+        const createdPost = await request(app).post(APP_ROUTES.POSTS).set(
+            'Authorization', authToken
+        ).send(testPost);
+
+        expect(createdPost.status).toBe(HttpStatuses.CREATED);
+        const targetId = createdPost.body.id;
+
+        const createCommentRes = await request(app).post(`${APP_ROUTES.POSTS}/${targetId}/comments`).set({
+            authorization: `Bearer ${accessToken}`
+        }).send({
+            content: ''
+        });
+
+        expect(createCommentRes.status).toBe(HttpStatuses.BAD_REQUEST);
+
+        const createdCommentLargeDataRes = await request(app).post(`${APP_ROUTES.POSTS}/${targetId}/comments`).set({
+            authorization: `Bearer ${accessToken}`
+        }).send({
+            content: 'a'.repeat(301)
+        });
+
+        expect(createdCommentLargeDataRes.status).toBe(HttpStatuses.BAD_REQUEST);
+    });
+
+
+    it(`should return error on incorrect postId`, async () => {
+        const createdPost = await request(app).post(APP_ROUTES.POSTS).set(
+            'Authorization', authToken
+        ).send(testPost);
+
+        expect(createdPost.status).toBe(HttpStatuses.CREATED);
+        const targetId = '63189b06003380064c4193be';
+
+        const createCommentRes = await request(app).post(`${APP_ROUTES.POSTS}/${targetId}/comments`).set({
+            authorization: `Bearer ${accessToken}`
+        }).send(testComment);
+
+        expect(createCommentRes.status).toBe(HttpStatuses.NOT_FOUND);
+    });
+
     it(`should create and return error for incorrect id`, async () => {
         const INCORRECT_ID = "63189b06003380064c4193be";
         const createdPost = await request(app).post(APP_ROUTES.POSTS).set(
@@ -156,57 +381,6 @@ describe('Posts API', () => {
         });
         expect(targetPost.status).toBe(HttpStatuses.OK);
     });
-
-    // it(`should return validation errors with spaces`, async () => {
-    //     const res = await request(app).post(APP_ROUTES.BLOGS)
-    //         .set('Authorization', authToken)
-    //         .send({
-    //             name: '     ',
-    //             description: '     ',
-    //             websiteUrl: '     ',
-    //         });
-    //
-    //     expect(res.status).toBe(HttpStatuses.BAD_REQUEST);
-    //     expect(res.body.errorMessages.length).toEqual(3);
-    // });
-    // it(`should return validation errors for huge text`, async () => {
-    //     const hugeDescription = 'a'.repeat(501);
-    //     const hugeName = 'a'.repeat(16);
-    //     const hugeWebsiteUrl = 'a'.repeat(101);
-    //
-    //     const res = await request(app).post(APP_ROUTES.BLOGS)
-    //         .set('Authorization', authToken)
-    //         .send({
-    //             name: hugeName,
-    //             description: hugeDescription,
-    //             websiteUrl: hugeWebsiteUrl,
-    //         }).expect(HttpStatuses.BAD_REQUEST);
-    //
-    //     expect(res.status).toBe(HttpStatuses.BAD_REQUEST);
-    //     expect(res.body.errorMessages.length).toEqual(3);
-    // });
-    // it(`should return validation error for websiteUrl`, async () => {
-    //     const res = await request(app).post(APP_ROUTES.BLOGS)
-    //         .set('Authorization', authToken)
-    //         .send({
-    //             ...testBlog,
-    //             websiteUrl: 'http://blog1.com',
-    //         }).expect(HttpStatuses.BAD_REQUEST);
-    //
-    //     expect(res.status).toBe(HttpStatuses.BAD_REQUEST);
-    //     expect(res.body.errorMessages.length).toEqual(1);
-    // });
-    // it(`should return validation error for websiteUrl`, async () => {
-    //     const res = await request(app).post(APP_ROUTES.BLOGS)
-    //         .set('Authorization', authToken)
-    //         .send({
-    //             ...testBlog,
-    //             websiteUrl: 'dklsahdh asjkdh jkasdjk hasjk dhkjas hdkjsa',
-    //         }).expect(HttpStatuses.BAD_REQUEST);
-    //
-    //     expect(res.status).toBe(HttpStatuses.BAD_REQUEST);
-    //     expect(res.body.errorMessages.length).toEqual(1);
-    // });
 });
 describe('Posts with pagination', () => {
     const app = express();
@@ -292,7 +466,7 @@ describe('Posts with pagination', () => {
         // Check that posts are sorted by createdAt in descending order (newest first)
         const dates = res.body.items.map((post: any) => new Date(post.createdAt));
         for (let i = 1; i < dates.length; i++) {
-            expect(dates[i-1].getTime()).toBeGreaterThanOrEqual(dates[i].getTime());
+            expect(dates[i - 1].getTime()).toBeGreaterThanOrEqual(dates[i].getTime());
         }
     });
 
@@ -356,7 +530,7 @@ describe('Posts with pagination', () => {
         // Check that posts are sorted by createdAt in ascending order (oldest first)
         const dates = res.body.items.map((post: any) => new Date(post.createdAt));
         for (let i = 1; i < dates.length; i++) {
-            expect(dates[i-1].getTime()).toBeLessThanOrEqual(dates[i].getTime());
+            expect(dates[i - 1].getTime()).toBeLessThanOrEqual(dates[i].getTime());
         }
     });
 
@@ -420,7 +594,7 @@ describe('Posts with pagination', () => {
         // Check that posts are sorted by createdAt in ascending order (oldest first)
         const dates = res.body.items.map((post: any) => new Date(post.createdAt));
         for (let i = 1; i < dates.length; i++) {
-            expect(dates[i-1].getTime()).toBeLessThanOrEqual(dates[i].getTime());
+            expect(dates[i - 1].getTime()).toBeLessThanOrEqual(dates[i].getTime());
         }
     });
 

@@ -1,5 +1,5 @@
 export enum APP_ROUTES {
-    LOGIN = "/api/auth/",
+    LOGIN = "/api/auth",
     TESTING = "/api/testing",
     BLOGS = "/api/blogs",
     POSTS = "/api/posts",

@@ -11,27 +11,19 @@ export const deleteCommentById = async (
         const {commentId} = req.params;
         const user = req.user;
 
-        const allUserComments = await commentsQueryRepository.getAllUserComments(user?.id!);
+        const comment = await commentsQueryRepository.getCommentById(commentId);
 
-        if (!allUserComments.length) {
-            res.sendStatus(HttpStatuses.NOT_FOUND);
-
-            return;
-        }
-
-        const isUserComment = allUserComments.find(comment => comment.id === commentId);
-
-        if (isUserComment) {
-            await CommentsService.deleteCommentById(commentId, user?.id!);
-
-            res.sendStatus(HttpStatuses.NO_CONTENT);
-
-            return;
-        } else {
+        if (comment!.commentatorInfo.userId !== user?._id.toString()) {
             res.sendStatus(HttpStatuses.FORBIDDEN);
 
             return;
         }
+
+        await CommentsService.deleteCommentById(commentId, user?._id.toString()!);
+
+        res.sendStatus(HttpStatuses.NO_CONTENT);
+
+        return;
     } catch (e) {
         res.sendStatus(HttpStatuses.INTERNAL_SERVER_ERROR);
 

@@ -14,7 +14,7 @@ export const authMiddleware = async (
         return;
     }
 
-    const [tokenType, token] = req.headers.authorization.split(' ')[1];
+    const [tokenType, token] = req.headers.authorization.split(' ');
 
     if (tokenType !== "Bearer") {
         res.sendStatus(HttpStatuses.UNAUTHORIZED);
@@ -32,8 +32,6 @@ export const authMiddleware = async (
 
     const {userId} = jwtPayload;
 
-    const foundUser = await usersQueryRepository.findUserById(userId);
-
-    req.user = foundUser;
+    req.user = await usersQueryRepository.findUserById(userId);
     next();
 };
