@@ -2,10 +2,8 @@ import {Request, Response} from "express";
 import {HttpStatuses} from "../../../core/types/http-statuses";
 import {commentsQueryRepository} from "../../repositories/comments.query-repository";
 import {mapToCommentViewModal} from "../mappers/map-to-comment-view-modal";
-import {WithId} from "mongodb";
-import {CommentViewModal} from "../../types";
 
-export const getCommentByPostIdHandler = async (
+export const getCommentByIdHandler = async (
     req: Request<{ commentId: string }>,
     res: Response,
 ) => {
