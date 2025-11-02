@@ -1,7 +1,9 @@
 import {CommentViewModal} from "../../types";
+import {mapToCommentViewModal} from "./map-to-comment-view-modal";
+import {WithId} from "mongodb";
 
 export function mapToCommentListMappedOutput(
-    items: CommentViewModal[],
+    items: WithId<CommentViewModal>[],
     meta: {
         totalCount: number,
         pageSize: number,
@@ -9,7 +11,9 @@ export function mapToCommentListMappedOutput(
     }
 ) {
     return {
-        items,
+        items: items.map(item => {
+            return mapToCommentViewModal(item);
+        }),
         totalCount: meta.totalCount,
         page: meta.pageNumber,
         pageSize: meta.pageSize,

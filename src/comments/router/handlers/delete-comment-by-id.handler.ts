@@ -15,7 +15,7 @@ export const deleteCommentById = async (
 
         if (!comment) {
             res.sendStatus(HttpStatuses.NOT_FOUND);
-            
+
             return;
         }
 
