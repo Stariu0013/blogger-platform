@@ -9,5 +9,12 @@ export type UserViewModel = {
     email: string;
     login: string;
     hash?: string;
-    createdAt: string;
+    createdAt: Date;
+    emailConfirmation: UserConfirmationData;
+}
+
+type UserConfirmationData = {
+    confirmationCode: string;
+    isConfirmed: boolean;
+    expirationDate: Date;
 }

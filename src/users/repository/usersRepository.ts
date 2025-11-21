@@ -1,24 +1,10 @@
 import {usersCollection} from "../../core/db/mongo.db";
-import {UserInputModel, UserViewModel} from "../types/types.dto";
-import {ObjectId, WithId} from "mongodb";
-import {hashPassword} from "../../core/helpers/bcrypt";
+import {ObjectId} from "mongodb";
+import {User} from "../instance/User.instance";
 
 export const usersRepository = {
-    async createUser(user: UserInputModel): Promise<void> {
-        const {
-            login, email, password
-        } = user;
-
-        const hash = hashPassword(password);
-
-        const resultUserData = {
-            login,
-            email,
-            hash,
-            createdAt: new Date().toISOString(),
-        };
-
-        await usersCollection.insertOne(resultUserData);
+    async createUser(user: User): Promise<void> {
+        await usersCollection.insertOne(user);
 
         return;
     },
@@ -32,5 +18,18 @@ export const usersRepository = {
         }
 
         return;
-    }
+    },
+    async confirmEmail(id: ObjectId): Promise<void> {
+        await usersCollection.updateOne({
+            _id: new ObjectId(id),
+        }, {
+            $set: [
+                {
+                    "emailConfirmation.isConfirmed": true,
+                }
+            ]
+        });
+
+        return;
+    },
 };

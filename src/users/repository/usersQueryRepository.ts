@@ -79,4 +79,9 @@ export const usersQueryRepository = {
             _id: new ObjectId(id)
         });
     },
+    async findUserByConfirmationCode(code: string): Promise<WithId<UserViewModel> | null> {
+        return await usersCollection.findOne({
+            "emailConfirmation.confirmationCode": code
+        });
+    },
 };

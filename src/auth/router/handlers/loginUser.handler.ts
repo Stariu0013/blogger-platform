@@ -3,7 +3,7 @@ import {UserViewModel} from "../../../users/types/types.dto";
 import {usersQueryRepository} from "../../../users/repository/usersQueryRepository";
 import {HttpStatuses} from "../../../core/types/http-statuses";
 import {WithId} from "mongodb";
-import {comparePasswords} from "../../../core/helpers/bcrypt";
+import {bcryptService} from "../../../core/helpers/bcrypt";
 import {AuthInputType} from "../../types/auth.types";
 import {jwtService} from "../../application/jwtService";
 
@@ -23,7 +23,7 @@ export const loginUser = async (
 
     const {hash} = user;
 
-    const result = await comparePasswords(password, hash!);
+    const result = await bcryptService.comparePasswords(password, hash!);
 
     if (result) {
         const token = jwtService.createJWT(user);
