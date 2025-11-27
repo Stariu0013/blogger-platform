@@ -1,6 +1,6 @@
 import {body} from "express-validator";
 
-const emailPattern = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
 export const validateLoginInputData = [
     body('loginOrEmail').trim().isString().withMessage('Login or email must be a string').isLength({min: 3}).withMessage('Login or email must be 3 characters or more'),
