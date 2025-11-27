@@ -8,6 +8,13 @@ import {APP_ROUTES} from "../../src/core/routes";
 import {generateBasicAuthToken} from "../utils/generateBasicAuthToken";
 import {HttpStatuses} from "../../src/core/types/http-statuses";
 
+jest.mock('nodemailer');
+jest.mock('../../src/emails/manager/email.manager', () => ({
+    emailManager: {
+        sendRegistrationEmail: jest.fn(),
+    },
+}));
+
 describe('auth', () => {
     const app = express();
     setupApp(app);

@@ -31,7 +31,8 @@ export const registerUser = async (
 
         await usersService.createUser(newUser);
 
-        await emailService.sendConfirmationEmail(email, newUser.emailConfirmation.confirmationCode)
+        await emailService.sendRegistrationEmail(email, newUser.emailConfirmation.confirmationCode);
+        res.sendStatus(HttpStatuses.NO_CONTENT);
     } catch (e) {
         console.error(e);
         res.sendStatus(HttpStatuses.INTERNAL_SERVER_ERROR);

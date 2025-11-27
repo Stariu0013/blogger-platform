@@ -1,6 +1,6 @@
 import {UserViewModel} from "../../types/types.dto";
 
-export const mapToUsersListMappedOutput = (items: UserViewModel[], meta: {
+export const mapToUsersListMappedOutput = (items: Partial<UserViewModel>[], meta: {
     page: number;
     pageSize: number;
     totalCount: number;
