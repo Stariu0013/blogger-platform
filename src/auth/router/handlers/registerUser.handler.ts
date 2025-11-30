@@ -18,7 +18,9 @@ export const registerUser = async (
         const result = await authService.registerUser(login, email, password);
 
         if (result.status !== ResultStatus.Success) {
-            res.sendStatus(HttpStatuses.BAD_REQUEST);
+            res.status(HttpStatuses.BAD_REQUEST).json({
+                errorsMessages: result.errorMessage || []
+            });
             return;
         }
 
