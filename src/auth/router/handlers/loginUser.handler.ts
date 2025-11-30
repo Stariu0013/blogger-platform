@@ -16,7 +16,7 @@ export const loginUser = async (
         if (authResult.status === ResultStatus.Success) {
             const accessToken = authResult.data;
 
-            res.status(HttpStatuses.OK).send({accessToken});
+            res.status(HttpStatuses.OK).send(accessToken);
 
             return;
         }

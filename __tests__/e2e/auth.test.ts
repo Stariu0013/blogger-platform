@@ -39,7 +39,7 @@ describe('auth', () => {
             password: testUserData.password
         });
 
-        accessToken = loginResponse.body.accessToken.accessToken;
+        accessToken = loginResponse.body.accessToken;
 
         expect(loginResponse.status).toBe(HttpStatuses.OK);
         expect(accessToken).toBeDefined();

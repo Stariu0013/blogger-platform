@@ -9,6 +9,8 @@ export const handleResendConfirmCode = async (
 ) => {
     const {email} = req.body;
 
+    console.log(email);
+
     try {
         const result = await authService.resendRegistrationCode(email);
 
@@ -17,6 +19,8 @@ export const handleResendConfirmCode = async (
 
             return;
         }
+
+        console.log(result);
 
         res.sendStatus(HttpStatuses.BAD_REQUEST);
     } catch (e) {
