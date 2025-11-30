@@ -1,11 +1,8 @@
 import {Request, Response} from "express";
 import {UserInputModel} from "../../../users/types/types.dto";
-import {usersQueryRepository} from "../../../users/repository/usersQueryRepository";
 import {HttpStatuses} from "../../../core/types/http-statuses";
-import {usersService} from "../../../users/application/usersService";
-import {emailService} from "../../../emails/service/email.service";
-import {User} from "../../../users/instance/User.instance";
-import {bcryptService} from "../../../core/helpers/bcrypt";
+import {authService} from "../../application/auth.application";
+import {ResultStatus} from "../../../core/types/result-status";
 
 export const registerUser = async (
     req: Request<{}, {}, UserInputModel>,
@@ -18,20 +15,13 @@ export const registerUser = async (
             password,
         } = req.body;
 
-        const isUserExists = await usersQueryRepository.findByLoginAndEmail(login, email);
+        const result = await authService.registerUser(login, email, password);
 
-        if (isUserExists) {
+        if (result.status !== ResultStatus.Success) {
             res.sendStatus(HttpStatuses.BAD_REQUEST);
-
             return;
         }
 
-        const hash = bcryptService.hashPassword(password);
-        const newUser = new User(login, email, hash);
-
-        await usersService.createUser(newUser);
-
-        await emailService.sendRegistrationEmail(email, newUser.emailConfirmation.confirmationCode);
         res.sendStatus(HttpStatuses.NO_CONTENT);
     } catch (e) {
         console.error(e);

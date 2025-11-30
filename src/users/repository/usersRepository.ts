@@ -23,13 +23,18 @@ export const usersRepository = {
         await usersCollection.updateOne({
             _id: new ObjectId(id),
         }, {
-            $set: [
-                {
-                    "emailConfirmation.isConfirmed": true,
-                }
-            ]
+            $set: {
+                "emailConfirmation.isConfirmed": true,
+            }
         });
 
         return;
     },
+    async doesUserExistByLoginOrEmail(login: string, email: string) {
+        const user = await usersCollection.findOne({
+            $or: [{login}, {email}]
+        });
+
+        return !!user;
+    }
 };

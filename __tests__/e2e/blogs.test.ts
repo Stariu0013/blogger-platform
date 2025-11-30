@@ -5,7 +5,7 @@ import {APP_ROUTES} from "../../src/core/routes";
 import {BlogInputModel} from "../../src/blogs/types/blogs.input-dto";
 import {HttpStatuses} from "../../src/core/types/http-statuses";
 import {generateBasicAuthToken} from "../utils/generateBasicAuthToken";
-import runDB from "../../src/core/db/mongo.db";
+import { runDB } from "../../src/core/db/mongo.db";
 import {Settings} from "../../src/core/settings/settings";
 import {clearDb} from "../utils/clearDb";
 
@@ -328,7 +328,7 @@ describe('GET /:id/posts - Pagination tests', () => {
     setupApp(app);
 
     beforeAll(async () => {
-        await runDB(Settings.MONGO_URL);
+        await { runDB }(Settings.MONGO_URL);
         await clearDb(app);
     });
     const testBlog: BlogInputModel = {

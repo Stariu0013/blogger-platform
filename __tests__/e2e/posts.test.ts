@@ -7,7 +7,7 @@ import {HttpStatuses} from "../../src/core/types/http-statuses";
 import {generateBasicAuthToken} from "../utils/generateBasicAuthToken";
 import {PostInputModel} from "../../src/posts/types/post-input.model";
 import {clearDb} from "../utils/clearDb";
-import runDB from "../../src/core/db/mongo.db";
+import { runDB } from "../../src/core/db/mongo.db";
 import {Settings} from "../../src/core/settings/settings";
 import {createNewUserAndReturnAccessToken} from "../utils/createNewUser";
 
@@ -401,7 +401,7 @@ describe('Posts with pagination', () => {
     const authToken = generateBasicAuthToken();
 
     beforeAll(async () => {
-        await runDB(Settings.MONGO_URL);
+        await { runDB }(Settings.MONGO_URL);
         await clearDb(app);
     });
 

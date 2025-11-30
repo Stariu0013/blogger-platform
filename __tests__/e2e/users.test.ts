@@ -3,7 +3,7 @@ import {setupApp} from "../../src/setupApp";
 import request from "supertest";
 import {APP_ROUTES} from "../../src/core/routes";
 import {HttpStatuses} from "../../src/core/types/http-statuses";
-import runDB from "../../src/core/db/mongo.db";
+import { runDB } from "../../src/core/db/mongo.db";
 import {Settings} from "../../src/core/settings/settings";
 import {clearDb} from "../utils/clearDb";
 import {generateBasicAuthToken} from "../utils/generateBasicAuthToken";

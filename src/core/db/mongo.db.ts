@@ -16,7 +16,7 @@ export let blogsCollection: Collection<BlogModel>;
 export let usersCollection: Collection<UserViewModel>;
 export let commentsCollection: Collection<CommentViewModal>;
 
-async function runDB(mongoUrl: string) {
+export async function runDB(mongoUrl: string) {
     mongoClient = new MongoClient(mongoUrl);
     const db: Db = mongoClient.db(Settings.DB_NAME);
 
@@ -35,4 +35,21 @@ async function runDB(mongoUrl: string) {
     }
 }
 
-export default runDB;
+export async function stopDb() {
+    await mongoClient.close();
+}
+
+export async function dropDb() {
+    try {
+        const dbCollections = await mongoClient.db(Settings.DB_NAME).listCollections().toArray();
+
+        for (const collection of dbCollections) {
+            const collectionName = collection.name;
+
+            await mongoClient.db(Settings.DB_NAME).collection(collectionName).deleteMany({});
+        }
+    } catch(e) {
+        console.error('Error in drop db: ', e);
+        await stopDb();
+    }
+}

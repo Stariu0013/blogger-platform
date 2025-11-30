@@ -62,14 +62,14 @@ export const usersQueryRepository = {
             ]
         });
     },
-    async findByLoginAndEmail(login?: string, email?: string): Promise<WithId<UserViewModel> | null> {
+    async findByLoginAndEmail(loginOrEmail: string): Promise<WithId<UserViewModel> | null> {
         return await usersCollection.findOne({
             $or: [
                 {
-                    login
+                    login: loginOrEmail
                 },
                 {
-                    email,
+                    email: loginOrEmail
                 }
             ]
         });

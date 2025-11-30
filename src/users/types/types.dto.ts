@@ -8,7 +8,7 @@ export type UserViewModel = {
     id?: string;
     email: string;
     login: string;
-    hash?: string;
+    passwordHash: string;
     createdAt: Date;
     emailConfirmation: UserConfirmationData;
 }

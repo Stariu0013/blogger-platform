@@ -3,25 +3,19 @@ import {HttpStatuses} from "../../../core/types/http-statuses";
 import {usersQueryRepository} from "../../../users/repository/usersQueryRepository";
 import {usersRepository} from "../../../users/repository/usersRepository";
 import {emailService} from "../../../emails/service/email.service";
+import {authService} from "../../application/auth.application";
 
 export const handleResendConfirmCode = async (
     req: Request<{}, {}, {email: string}>,
     res: Response,
 ) => {
     try {
-        const {email} = req.body;
+        const confirmationResult = await authService.confirmEmail(code);
 
-        const user = await usersQueryRepository.findByLoginAndEmail(email);
+        if (confirmationResult.status === ResultStatus.Success) {
+            await authService.confirmEmail(code);
 
-        if (!user) {
-            res.sendStatus(HttpStatuses.BAD_REQUEST);
-            return;
-        }
-
-        if (user.emailConfirmation.expirationDate > new Date() && !user.emailConfirmation.isConfirmed) {
-            const confirmationCode = user.emailConfirmation.confirmationCode;
-
-            await emailService.sendRegistrationEmail(email, confirmationCode);
+            res.sendStatus(HttpStatuses.NO_CONTENT);
 
             return;
         }

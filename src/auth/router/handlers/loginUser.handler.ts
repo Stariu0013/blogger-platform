@@ -1,11 +1,8 @@
 import {Request, Response} from "express";
-import {UserViewModel} from "../../../users/types/types.dto";
-import {usersQueryRepository} from "../../../users/repository/usersQueryRepository";
-import {HttpStatuses} from "../../../core/types/http-statuses";
-import {WithId} from "mongodb";
-import {bcryptService} from "../../../core/helpers/bcrypt";
 import {AuthInputType} from "../../types/auth.types";
-import {jwtService} from "../../application/jwtService";
+import {authService} from "../../application/auth.application";
+import {ResultStatus} from "../../../core/types/result-status";
+import {HttpStatuses} from "../../../core/types/http-statuses";
 
 export const loginUser = async (
     req: Request<{}, {}, AuthInputType>,
@@ -13,27 +10,15 @@ export const loginUser = async (
 ) => {
     const {loginOrEmail, password} = req.body;
 
-    const user: WithId<UserViewModel> | null = await usersQueryRepository.findByLoginOrEmail(loginOrEmail);
+    const authResult = await authService.loginUser(loginOrEmail, password);
 
-    if (!user) {
-        res.sendStatus(HttpStatuses.UNAUTHORIZED);
+    if (authResult.status === ResultStatus.Success) {
+        const accessToken = authResult.data;
 
-        return;
-    }
-
-    const {hash} = user;
-
-    const result = await bcryptService.comparePasswords(password, hash!);
-
-    if (result) {
-        const token = jwtService.createJWT(user);
-
-        res.status(HttpStatuses.OK).send({
-            accessToken: token,
-        });
+        res.status(HttpStatuses.OK).json({accessToken});
 
         return;
     }
 
-    res.sendStatus(HttpStatuses.UNAUTHORIZED);
+    return res.status(HttpStatuses.UNAUTHORIZED);
 };

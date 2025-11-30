@@ -1,7 +1,6 @@
 import {Request, Response} from "express";
 import {HttpStatuses} from "../../../core/types/http-statuses";
-import {usersQueryRepository} from "../../../users/repository/usersQueryRepository";
-import {usersRepository} from "../../../users/repository/usersRepository";
+import {authService} from "../../application/auth.application";
 
 export const handleConfirmCode = async (
     req: Request<{}, {}, {code: string}>,
@@ -9,16 +8,11 @@ export const handleConfirmCode = async (
 ) => {
     try {
         const {code} = req.body;
+        const confirmationResult = await authService.confirmEmail(code);
 
-        const user = await usersQueryRepository.findUserByConfirmationCode(code);
+        if (confirmationResult.status === ResultStatus.Success) {
+            await authService.confirmEmail(code);
 
-        if (!user) {
-            res.sendStatus(HttpStatuses.BAD_REQUEST);
-            return;
-        }
-
-        if (user?.emailConfirmation.confirmationCode === code && user.emailConfirmation.expirationDate > new Date()) {
-            await usersRepository.confirmEmail(user._id);
             res.sendStatus(HttpStatuses.NO_CONTENT);
 
             return;
