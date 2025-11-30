@@ -29,7 +29,7 @@ export const createUserHandler = async (
 
         await usersService.createUser(newUser);
 
-        const createdUser = await usersQueryRepository.findByLoginAndEmail(login, email);
+        const createdUser = await usersQueryRepository.findByLoginAndEmail(login || email);
 
         if (!createdUser) {
             res.sendStatus(HttpStatuses.NOT_FOUND);
