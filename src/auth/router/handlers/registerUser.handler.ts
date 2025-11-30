@@ -19,7 +19,7 @@ export const registerUser = async (
 
         if (result.status !== ResultStatus.Success) {
             res.status(HttpStatuses.BAD_REQUEST).json({
-                errorsMessages: result.errorMessage || []
+                errorsMessages: result.extension || []
             });
             return;
         }

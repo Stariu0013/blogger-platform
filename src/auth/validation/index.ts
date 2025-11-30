@@ -17,9 +17,19 @@ export const isEmailValid = body('email').trim().isString().withMessage('Email m
 
         return true;
     });
+export const isLoginValid = body('login').trim().isString().withMessage('Login must be a string')
+    .isLength({min: 3}).withMessage('Login must be 3 characters or more')
+    .custom(async (login: string) => {
+        const user = await usersQueryRepository.findByLoginOrEmail(login);
+        if (user) {
+            throw new Error('Login already exists');
+        }
+        return true;
+    });
+
 
 export const validateRegistrationInputData = [
-    body('login').trim().isString().withMessage('Login must be a string').isLength({min: 3}).withMessage('Login must be 3 characters or more'),
+    isLoginValid,
     isEmailValid,
     body('password').trim().isString().withMessage('Password must be a string').isLength({min: 6}).withMessage('Password must be 6 characters or more'),
 ];
