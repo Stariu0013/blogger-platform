@@ -19,7 +19,9 @@ export const handleConfirmCode = async (
             return;
         }
 
-        res.sendStatus(HttpStatuses.BAD_REQUEST);
+        res.send(HttpStatuses.BAD_REQUEST).json({
+            errorsMessages: confirmationResult.extension || []
+        });
     } catch (e) {
         console.error(e);
         res.sendStatus(HttpStatuses.INTERNAL_SERVER_ERROR);

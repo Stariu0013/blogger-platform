@@ -7,6 +7,7 @@ import request from "supertest";
 import {APP_ROUTES} from "../../src/core/routes";
 import {generateBasicAuthToken} from "../utils/generateBasicAuthToken";
 import {HttpStatuses} from "../../src/core/types/http-statuses";
+import {ResultStatus} from "../../src/core/types/result-status";
 
 describe('auth', () => {
     const app = express();
@@ -38,7 +39,7 @@ describe('auth', () => {
             password: testUserData.password
         });
 
-        accessToken = loginResponse.body.accessToken;
+        accessToken = loginResponse.body.accessToken.accessToken;
 
         expect(loginResponse.status).toBe(HttpStatuses.OK);
         expect(accessToken).toBeDefined();

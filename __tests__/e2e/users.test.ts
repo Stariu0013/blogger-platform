@@ -114,16 +114,6 @@ describe('Users API', () => {
         expect(res.status).toBe(HttpStatuses.BAD_REQUEST);
     });
 
-    it('should create user and login', async () => {
-        await request(app).post(APP_ROUTES.USERS).set({
-            authorization: authToken
-        }).send(testUser);
-
-        const res = await request(app).post(APP_ROUTES.LOGIN).send(testUser);
-
-        expect(res.status).toBe(HttpStatuses.NO_CONTENT);
-    });
-
     it('should return error on user login', async () => {
         const res = await request(app).post(APP_ROUTES.LOGIN).send(testUser);
 

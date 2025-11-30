@@ -401,7 +401,7 @@ describe('Posts with pagination', () => {
     const authToken = generateBasicAuthToken();
 
     beforeAll(async () => {
-        await { runDB }(Settings.MONGO_URL);
+        await runDB(Settings.MONGO_URL);
         await clearDb(app);
     });
 

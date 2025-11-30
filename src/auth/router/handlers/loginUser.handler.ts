@@ -8,17 +8,23 @@ export const loginUser = async (
     req: Request<{}, {}, AuthInputType>,
     res: Response,
 ) => {
-    const {loginOrEmail, password} = req.body;
+    try {
+        const {loginOrEmail, password} = req.body;
 
-    const authResult = await authService.loginUser(loginOrEmail, password);
+        const authResult = await authService.loginUser(loginOrEmail, password);
 
-    if (authResult.status === ResultStatus.Success) {
-        const accessToken = authResult.data;
+        if (authResult.status === ResultStatus.Success) {
+            const accessToken = authResult.data;
 
-        res.status(HttpStatuses.OK).json({accessToken});
+            res.status(HttpStatuses.OK).send({accessToken});
 
-        return;
+            return;
+        }
+
+        return res.status(HttpStatuses.UNAUTHORIZED).send({
+            errorsMessages: authResult.extension || []
+        });
+    } catch (e) {
+        res.sendStatus(HttpStatuses.INTERNAL_SERVER_ERROR);
     }
-
-    return res.status(HttpStatuses.UNAUTHORIZED);
 };

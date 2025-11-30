@@ -328,7 +328,7 @@ describe('GET /:id/posts - Pagination tests', () => {
     setupApp(app);
 
     beforeAll(async () => {
-        await { runDB }(Settings.MONGO_URL);
+        await runDB(Settings.MONGO_URL);
         await clearDb(app);
     });
     const testBlog: BlogInputModel = {

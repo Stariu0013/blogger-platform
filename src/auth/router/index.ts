@@ -3,7 +3,6 @@ import {loginUser} from "./handlers/loginUser.handler";
 import {inputResultValidationMiddleware} from "../../core/validation/input-result-validation-middleware";
 import {
     isConfirmationCodeValid,
-    isEmailValid,
     validateLoginInputData,
     validateRegistrationInputData
 } from "../validation";
@@ -19,4 +18,4 @@ authRouter.get('/me', authMiddleware, getUserInfoHandler);
 authRouter.post('/login', validateLoginInputData, inputResultValidationMiddleware, loginUser);
 authRouter.post('/registration', validateRegistrationInputData, inputResultValidationMiddleware, registerUser);
 authRouter.post('/registration-confirmation', isConfirmationCodeValid, inputResultValidationMiddleware, handleConfirmCode);
-authRouter.post('/registration-email-resending', isEmailValid, inputResultValidationMiddleware, handleResendConfirmCode);
+authRouter.post('/registration-email-resending', inputResultValidationMiddleware, handleResendConfirmCode);
