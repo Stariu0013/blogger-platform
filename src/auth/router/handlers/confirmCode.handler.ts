@@ -1,6 +1,7 @@
 import {Request, Response} from "express";
 import {HttpStatuses} from "../../../core/types/http-statuses";
 import {authService} from "../../application/auth.application";
+import {ResultStatus} from "../../../core/types/result-status";
 
 export const handleConfirmCode = async (
     req: Request<{}, {}, {code: string}>,

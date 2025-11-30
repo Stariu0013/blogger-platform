@@ -128,5 +128,29 @@ export const authService = {
             data: null,
             extension: []
         }
+    },
+    async resendRegistrationCode(email: string): Promise<Result<any>> {
+        const user = await usersQueryRepository.findByLoginOrEmail(email);
+
+        if (user!.emailConfirmation.expirationDate < new Date() || user!.emailConfirmation.isConfirmed) {
+            return {
+                status: ResultStatus.BadRequest,
+                data: null,
+                errorMessage: 'Bad request',
+                extension: [{field: 'code', message: 'Code expired or already been confirmed'}]
+            }
+        }
+
+        try {
+            await emailService.sendRegistrationEmail(email, user!.emailConfirmation.confirmationCode);
+        } catch (e) {
+            console.error(e);
+        }
+
+        return {
+            status: ResultStatus.Success,
+            data: [],
+            extension: []
+        };
     }
 }
