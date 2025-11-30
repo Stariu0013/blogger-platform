@@ -14,7 +14,7 @@ export const createUserHandler = async (
     try {
         const { login, email, password } = req.body;
 
-        const isUserExists = await usersQueryRepository.findByLoginAndEmail(login, email);
+        const isUserExists = await usersQueryRepository.findByLoginAndEmail(login || email);
 
         if (isUserExists) {
             res.status(HttpStatuses.BAD_REQUEST).send({
