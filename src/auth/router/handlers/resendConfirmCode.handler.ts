@@ -20,9 +20,9 @@ export const handleResendConfirmCode = async (
             return;
         }
 
-        console.log(result);
-
-        res.sendStatus(HttpStatuses.BAD_REQUEST);
+        res.sendStatus(HttpStatuses.BAD_REQUEST).json({
+            errorsMessages: result.extension || []
+        });
     } catch (e) {
         console.error(e);
         res.sendStatus(HttpStatuses.INTERNAL_SERVER_ERROR);

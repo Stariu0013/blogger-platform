@@ -97,7 +97,7 @@ export const authService = {
                 status: ResultStatus.NotFound,
                 data: null,
                 errorMessage: 'Not found',
-                extension: [{field: 'password', message: 'Wrong password'}]
+                extension: [{field: 'code', message: 'Wrong code'}]
             }
         }
 

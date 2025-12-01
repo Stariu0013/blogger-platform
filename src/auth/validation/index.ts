@@ -34,5 +34,5 @@ export const isEmailValidForResending = body('email').trim().isString().withMess
 export const validateRegistrationInputData = [
     isLoginValid,
     isEmailValid,
-    body('password').trim().isString().withMessage('Password must be a string').isLength({min: 6, max: 21}).withMessage('Password must be 6-21 characters long'),
+    body('password').trim().isString().withMessage('Password must be a string').isLength({min: 6, max: 20}).withMessage('Password must be 6-20 characters long'),
 ];
