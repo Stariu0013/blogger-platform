@@ -36,5 +36,15 @@ export const usersRepository = {
         });
 
         return !!user;
+    },
+    async updateConfirmationInfo(userId: ObjectId, newConfirmationCode: string, newExpirationDate: Date) {
+        await usersCollection.updateOne({
+            _id: userId,
+        }, {
+            $set: {
+                "emailConfirmation.confirmationCode": newConfirmationCode,
+                "emailConfirmation.expirationDate": newExpirationDate,
+            }
+        });
     }
 };

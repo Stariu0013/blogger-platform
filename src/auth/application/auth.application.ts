@@ -7,6 +7,8 @@ import {WithId} from "mongodb";
 import {usersRepository} from "../../users/repository/usersRepository";
 import {emailService} from "../../emails/service/email.service";
 import {jwtService} from "./jwtService";
+import { randomUUID } from "node:crypto";
+import {add} from "date-fns/add";
 
 export const authService = {
     async loginUser(loginOrEmail: string, password: string): Promise<Result<{ accessToken: string } | null>> {
@@ -99,6 +101,19 @@ export const authService = {
             }
         }
 
+        const isUuid = new RegExp(
+            /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/i
+        ).test(code);
+
+        if (!isUuid) {
+            return {
+                status: ResultStatus.BadRequest,
+                data: null,
+                errorMessage: 'Bad request',
+                extension: [{field: 'code', message: 'Wrong confirmation code'}]
+            }
+        }
+
         if (user.emailConfirmation.expirationDate < new Date() || user.emailConfirmation.isConfirmed) {
             return {
                 status: ResultStatus.BadRequest,
@@ -137,8 +152,13 @@ export const authService = {
             }
         }
 
+        const newConfirmationCode = randomUUID();
+        const newExpirationDate = add(new Date(), { hours: 1, minutes: 3 });
+
+        await usersRepository.updateConfirmationInfo(user._id, newConfirmationCode, newExpirationDate);
+
         try {
-            await emailService.sendRegistrationEmail(email, user!.emailConfirmation.confirmationCode);
+            await emailService.sendRegistrationEmail(email, newConfirmationCode);
         } catch (e) {
             console.error(e);
         }

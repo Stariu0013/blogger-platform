@@ -19,7 +19,7 @@ export const handleConfirmCode = async (
             return;
         }
 
-        res.send(HttpStatuses.BAD_REQUEST).json({
+        res.status(HttpStatuses.BAD_REQUEST).json({
             errorsMessages: confirmationResult.extension || []
         });
     } catch (e) {
