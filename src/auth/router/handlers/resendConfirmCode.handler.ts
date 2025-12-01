@@ -9,8 +9,6 @@ export const handleResendConfirmCode = async (
 ) => {
     const {email} = req.body;
 
-    console.log(email);
-
     try {
         const result = await authService.resendRegistrationCode(email);
 
