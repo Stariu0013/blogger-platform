@@ -14,7 +14,7 @@ export const handleConfirmCode = async (
         if (confirmationResult.status === ResultStatus.Success) {
             await authService.confirmEmail(code);
 
-            res.status(HttpStatuses.NO_CONTENT);
+            res.status(HttpStatuses.NO_CONTENT).send();
 
             return;
         }
