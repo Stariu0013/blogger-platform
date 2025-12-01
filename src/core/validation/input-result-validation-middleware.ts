@@ -16,14 +16,14 @@ const formatErrors = (error: ValidationError): ErrorMessage => {
     };
 };
 
-export const inputResultValidationMiddleware = (onlyFirstError: boolean = true) => (
+export const inputResultValidationMiddleware = (
     req: Request<{}, {}, {}, {}>,
     res: Response,
     next: NextFunction
 ) => {
     const errors = validationResult(req)
         .formatWith(formatErrors)
-        .array({ onlyFirstError });
+        .array({ onlyFirstError: true });
 
     if (errors.length > 0) {
         res.status(HttpStatuses.BAD_REQUEST).json({ errorsMessages: errors });
