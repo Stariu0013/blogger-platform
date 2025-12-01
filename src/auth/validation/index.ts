@@ -26,7 +26,10 @@ export const isLoginValid = body('login').trim().isString().withMessage('Login m
         }
         return true;
     });
-
+export const isEmailValidForResending = body('email').trim().isString().withMessage('Email must be a string')
+    .isLength({min: 3}).withMessage('Email must be 3 characters or more')
+    .matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/)
+    .isEmail().withMessage('Invalid email format');
 
 export const validateRegistrationInputData = [
     isLoginValid,

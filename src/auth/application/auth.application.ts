@@ -99,19 +99,6 @@ export const authService = {
             }
         }
 
-        const isUuid = new RegExp(
-            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-        ).test(code);
-
-        if (!isUuid) {
-            return {
-                status: ResultStatus.BadRequest,
-                data: null,
-                errorMessage: 'Bad request',
-                extension: [{field: 'code', message: 'Wrong confirmation code'}]
-            }
-        }
-
         if (user.emailConfirmation.expirationDate < new Date() || user.emailConfirmation.isConfirmed) {
             return {
                 status: ResultStatus.BadRequest,
@@ -131,6 +118,15 @@ export const authService = {
     },
     async resendRegistrationCode(email: string): Promise<Result<any>> {
         const user = await usersQueryRepository.findByLoginOrEmail(email);
+
+        if (!user) {
+            return {
+                status: ResultStatus.BadRequest,
+                data: null,
+                errorMessage: 'Bad request',
+                extension: [{field: 'email', message: 'User not found'}]
+            }
+        }
 
         if (user!.emailConfirmation.expirationDate > new Date() || user!.emailConfirmation.isConfirmed) {
             return {
