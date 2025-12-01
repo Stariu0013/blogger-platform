@@ -114,7 +114,16 @@ export const authService = {
             }
         }
 
-        if (user.emailConfirmation.expirationDate < new Date() || !user.emailConfirmation.isConfirmed) {
+        if (user.emailConfirmation.isConfirmed) {
+            return {
+                status: ResultStatus.BadRequest,
+                data: null,
+                errorMessage: 'Bad request',
+                extension: [{field: 'code', message: 'Code already been confirmed'}]
+            }
+        }
+
+        if (user.emailConfirmation.expirationDate < new Date()) {
             return {
                 status: ResultStatus.BadRequest,
                 data: null,
