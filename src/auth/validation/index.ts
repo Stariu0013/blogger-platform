@@ -8,7 +8,15 @@ export const validateLoginInputData = [
 export const isConfirmationCodeValid = body('code').trim().isString().withMessage('Confirmation code must be a string').isLength({min: 6}).withMessage('Confirmation code must be 6 characters or more');
 export const isEmailValid = body('email').trim().isString().withMessage('Email must be a string')
     .isLength({min: 3}).withMessage('Email must be 3 characters or more')
-    .isEmail().withMessage('Invalid email format');
+    .isEmail().withMessage('Invalid email format')
+    .custom(async (email: string) => {
+        const user = await usersQueryRepository.findByLoginOrEmail(email);
+        if (user) {
+            throw new Error('Email already exists');
+        }
+
+        return true;
+    });
 export const isLoginValid = body('login').trim().isString().withMessage('Login must be a string')
     .isLength({min: 3}).withMessage('Login must be 3 characters or more')
     .custom(async (login: string) => {
