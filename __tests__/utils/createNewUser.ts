@@ -23,7 +23,7 @@ export async function createNewUserAndReturnAccessToken(app: Express) {
         password: testUserData.password
     });
 
-    const accessToken = loginResponse.body.accessToken.accessToken;
+    const accessToken = loginResponse.body.accessToken;
 
     await request(app).get(`${APP_ROUTES.LOGIN}/me`).set({
         authorization: `Bearer ${accessToken}`

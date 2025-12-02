@@ -19,5 +19,7 @@ export const emailService = {
         });
 
         console.log("Message sent:", info.messageId);
+
+        return !!info;
     }
 }

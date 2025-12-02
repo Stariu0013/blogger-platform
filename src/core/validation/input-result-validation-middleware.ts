@@ -32,19 +32,3 @@ export const inputResultValidationMiddleware = (
 
     next();
 };
-
-export const inputResultErrorsValidationMiddleware = (
-    req: Request<{}, {}, {}, {}>,
-    res: Response,
-    next: NextFunction
-) => {
-    const errors = validationResult(req)
-        .formatWith(formatErrors).array();
-
-    if (errors.length > 0) {
-        res.status(HttpStatuses.BAD_REQUEST).json({ errorsMessages: errors });
-        return;
-    }
-
-    next();
-};
