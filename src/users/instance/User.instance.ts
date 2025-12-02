@@ -1,4 +1,5 @@
 import {randomUUID} from "node:crypto";
+import {add} from "date-fns/add";
 
 export class User {
     login: string;
@@ -19,7 +20,7 @@ export class User {
         this.emailConfirmation = {
             confirmationCode: randomUUID(),
             isConfirmed: false,
-            expirationDate: new Date()
+            expirationDate: add(new Date(), { hours: 1, minutes: 3 })
         };
     }
 }
