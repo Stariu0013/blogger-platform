@@ -123,7 +123,7 @@ export const authService = {
             }
         }
 
-        if (user.emailConfirmation.expirationDate < new Date()) {
+        if (user.emailConfirmation.expirationDate > new Date()) {
             return {
                 status: ResultStatus.BadRequest,
                 data: null,
@@ -161,7 +161,7 @@ export const authService = {
             }
         }
 
-        if (user.emailConfirmation.expirationDate < new Date()) {
+        if (user.emailConfirmation.expirationDate > new Date()) {
             return {
                 status: ResultStatus.BadRequest,
                 data: null,
