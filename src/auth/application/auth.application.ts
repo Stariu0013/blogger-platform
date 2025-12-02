@@ -140,6 +140,7 @@ export const authService = {
             extension: []
         }
     },
+
     async resendRegistrationCode(email: string): Promise<Result<any>> {
         const user = await usersQueryRepository.findByLoginOrEmail(email);
 
@@ -161,7 +162,7 @@ export const authService = {
             }
         }
 
-        if (user.emailConfirmation.expirationDate > new Date()) {
+        if (user.emailConfirmation.expirationDate < new Date()) {
             return {
                 status: ResultStatus.BadRequest,
                 data: null,
