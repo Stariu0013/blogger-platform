@@ -4,17 +4,20 @@ import {BlogModel} from "../../blogs/types/blogs.dto";
 import {Settings} from "../settings/settings";
 import {UserViewModel} from "../../users/types/types.dto";
 import {CommentViewModal} from "../../comments/types";
+import {TokenBlackList} from "../../tokenBlackList/types";
 
 const POSTS_COLLECTION_NAME = "posts";
 const BLOGS_COLLECTION_NAME = "blogs";
 const USERS_COLLECTION_NAME = "users";
 const COMMENTS_COLLECTION_NAME = "comments";
+const TOKENS_BLACK_LIST_COLLECTION_NAME = "tokens_black_list";
 
 let mongoClient: MongoClient;
 export let postsCollection: Collection<PostModel>;
 export let blogsCollection: Collection<BlogModel>;
 export let usersCollection: Collection<UserViewModel>;
 export let commentsCollection: Collection<CommentViewModal>;
+export let blackListCollection: Collection<TokenBlackList>;
 
 export async function runDB(mongoUrl: string) {
     mongoClient = new MongoClient(mongoUrl);
@@ -24,6 +27,7 @@ export async function runDB(mongoUrl: string) {
     blogsCollection = db.collection(BLOGS_COLLECTION_NAME);
     usersCollection = db.collection(USERS_COLLECTION_NAME);
     commentsCollection = db.collection(COMMENTS_COLLECTION_NAME);
+    blackListCollection = db.collection(TOKENS_BLACK_LIST_COLLECTION_NAME);
 
     try {
         await mongoClient.connect();

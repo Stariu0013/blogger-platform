@@ -6,12 +6,16 @@ import {ResultStatus} from "../../core/types/result-status";
 import {WithId} from "mongodb";
 import {usersRepository} from "../../users/repository/usersRepository";
 import {emailService} from "../../emails/service/email.service";
-import {jwtService} from "./jwtService";
-import { randomUUID } from "node:crypto";
+import {jwtService} from "../services/jwtService";
+import {randomUUID} from "node:crypto";
 import {add} from "date-fns/add";
+import {AuthQueryRepository} from "../repositories/auth.query-repository";
+import {UserViewModel} from "../../users/types/types.dto";
+import {AuthRepository} from "../repositories/auth.repository";
+import {JwtPayload} from "jsonwebtoken";
 
 export const authService = {
-    async loginUser(loginOrEmail: string, password: string): Promise<Result<{ accessToken: string } | null>> {
+    async loginUser(loginOrEmail: string, password: string): Promise<Result<{ accessToken: string, refreshToken: string } | null>> {
         const userResult = await this.checkUserCredentials(loginOrEmail, password);
 
         if (userResult.status !== ResultStatus.Success) {
@@ -24,10 +28,14 @@ export const authService = {
         }
 
         const accessToken = jwtService.createJWT(userResult.data!);
+        const refreshToken = jwtService.createRefreshToken(userResult.data!._id.toString());
 
         return {
             status: ResultStatus.Success,
-            data: {accessToken},
+            data: {
+                accessToken,
+                refreshToken,
+            },
             extension: []
         }
     },
@@ -140,7 +148,6 @@ export const authService = {
             extension: []
         }
     },
-
     async resendRegistrationCode(email: string): Promise<Result<any>> {
         const user = await usersQueryRepository.findByLoginOrEmail(email);
 
@@ -187,5 +194,53 @@ export const authService = {
             data: [],
             extension: []
         };
+    },
+    async refreshToken(token: string, user: WithId<UserViewModel>): Promise<Result<{accessToken: string, refreshToken: string} | null>> {
+        const isTokenInBlackList = await AuthQueryRepository.getAccessTokenFromBlackList(token);
+
+        if (isTokenInBlackList) {
+            return {
+                status: ResultStatus.Unauthorized,
+                data: null,
+                errorMessage: 'Unauthorized',
+                extension: [{
+                    field: 'refreshToken',
+                    message: 'Refresh token is invalid'
+                }]
+            }
+        }
+
+        await AuthRepository.insertTokenToBlackList(token);
+
+        const accessToken = jwtService.createJWT(user);
+        const refreshToken = jwtService.createRefreshToken(user._id.toString());
+
+        return {
+            status: ResultStatus.Success,
+            data: {
+                accessToken,
+                refreshToken
+            },
+            extension: []
+        };
+    },
+    async logoutUser(token: string) {
+        const isTokenInBlackList = await AuthQueryRepository.getAccessTokenFromBlackList(token);
+
+        if (isTokenInBlackList) {
+            return {
+                status: ResultStatus.Unauthorized,
+                data: null,
+                errorMessage: 'Unauthorized',
+                extension: [{
+                    field: 'refreshToken',
+                    message: 'Refresh token is invalid'
+                }]
+            }
+        }
+
+        const decoded = await jwtService.verifyRefreshToken(token);
+
+        await AuthRepository.insertTokenToBlackList(token, (decoded as JwtPayload).expireAt);
     }
 }

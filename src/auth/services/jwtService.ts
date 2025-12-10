@@ -10,7 +10,7 @@ export const jwtService = {
             },
             Settings.JWT_SECRET,
             {
-                expiresIn: '1h'
+                expiresIn: +Settings.JWT_EXPIRATION_TIME
             });
 
         return token;
@@ -18,6 +18,20 @@ export const jwtService = {
     findUserByToken(token: string) {
         try {
             const result = jwt.verify(token, Settings.JWT_SECRET) as JwtPayload;
+
+            return result;
+        } catch (e) {
+            return null;
+        }
+    },
+    createRefreshToken(userId: string): string {
+        const token = jwt.sign({userId}, Settings.REFRESH_TOKEN_SECRET, {expiresIn: +Settings.REFRESH_TOKEN_EXPIRATION_TIME * 1000 });
+
+        return token;
+    },
+    verifyRefreshToken(token: string) {
+        try {
+            const result = jwt.verify(token, Settings.REFRESH_TOKEN_SECRET);
 
             return result;
         } catch (e) {

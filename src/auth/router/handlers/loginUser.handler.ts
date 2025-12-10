@@ -13,8 +13,16 @@ export const loginUser = async (
 
         const authResult = await authService.loginUser(loginOrEmail, password);
 
-        if (authResult.status === ResultStatus.Success) {
-            const accessToken = authResult.data;
+        if (authResult.status === ResultStatus.Success && authResult.data) {
+            const {
+                accessToken,
+                refreshToken,
+            } = authResult.data;
+
+            res.cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: true,
+            });
 
             res.status(HttpStatuses.OK).send(accessToken);
 

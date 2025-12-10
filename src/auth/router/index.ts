@@ -13,11 +13,15 @@ import {authMiddleware} from "../../core/middlewares/authMiddleware";
 import {handleConfirmCode} from "./handlers/confirmCode.handler";
 import {handleResendConfirmCode} from "./handlers/resendConfirmCode.handler";
 import {registerUser} from "./handlers/registerUser.handler";
+import {handleRefreshToken} from "./handlers/refreshToken.handler";
+import {logoutUserHandler} from "./handlers/logoutUser.handler";
 
 export const authRouter = Router({});
 
 authRouter.get('/me', authMiddleware, getUserInfoHandler);
 authRouter.post('/login', validateLoginInputData, inputResultValidationMiddleware, loginUser);
+authRouter.post('/logout', authMiddleware, logoutUserHandler);
+authRouter.post('/refresh-token', authMiddleware, handleRefreshToken);
 authRouter.post('/registration', validateRegistrationInputData, inputResultValidationMiddleware, registerUser);
 authRouter.post('/registration-confirmation', isConfirmationCodeValid, inputResultValidationMiddleware, handleConfirmCode);
 authRouter.post('/registration-email-resending', isEmailValidForResending, inputResultValidationMiddleware, handleResendConfirmCode);
