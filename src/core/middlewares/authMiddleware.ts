@@ -14,6 +14,10 @@ export const authMiddleware = async (
         return;
     }
 
+    if(!req.cookies["refreshToken"]) {
+        res.sendStatus(HttpStatuses.UNAUTHORIZED);
+    }
+
     const [tokenType, token] = req.headers.authorization.split(' ');
 
     if (tokenType !== "Bearer") {
