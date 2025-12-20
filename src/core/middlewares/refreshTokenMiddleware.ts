@@ -26,13 +26,12 @@ export const refreshTokenMiddleware = async (
         return;
     }
 
-    const decoded = await jwtService.verifyRefreshToken(refreshToken);
+    const decoded = jwtService.verifyRefreshToken(refreshToken);
 
     if (!decoded) {
         res.sendStatus(HttpStatuses.UNAUTHORIZED);
         return;
     }
-
 
     const userId = (decoded as JwtPayload).userId;
     const user = await usersQueryRepository.findUserById(userId);
