@@ -24,7 +24,9 @@ export const loginUser = async (
                 secure: true,
             });
 
-            res.status(HttpStatuses.OK).send(accessToken);
+            res.status(HttpStatuses.OK).send({
+                accessToken
+            });
 
             return;
         }
