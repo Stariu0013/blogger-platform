@@ -21,7 +21,7 @@ export const authRouter = Router({});
 
 authRouter.get('/me', authMiddleware, getUserInfoHandler);
 authRouter.post('/login', validateLoginInputData, inputResultValidationMiddleware, loginUser);
-authRouter.post('/logout', authMiddleware, refreshTokenMiddleware, logoutUserHandler);
+authRouter.post('/logout', refreshTokenMiddleware, logoutUserHandler);
 authRouter.post('/refresh-token', refreshTokenMiddleware, handleRefreshToken);
 authRouter.post('/registration', validateRegistrationInputData, inputResultValidationMiddleware, registerUser);
 authRouter.post('/registration-confirmation', isConfirmationCodeValid, inputResultValidationMiddleware, handleConfirmCode);

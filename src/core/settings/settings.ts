@@ -5,5 +5,5 @@ export const Settings = {
     JWT_SECRET: process.env.JWT_SECRET || "secret",
     JWT_EXPIRATION_TIME: process.env.JWT_EXPIRATION_TIME || 10,
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET || "refreshTokenSecret",
-    REFRESH_TOKEN_EXPIRATION_TIME: process.env.REFRESH_TOKEN_EXPIRATION_TIME || 30,
+    REFRESH_TOKEN_EXPIRATION_TIME: process.env.REFRESH_TOKEN_EXPIRATION_TIME || 20,
 }
