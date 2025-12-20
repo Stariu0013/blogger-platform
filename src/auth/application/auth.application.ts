@@ -225,22 +225,21 @@ export const authService = {
         };
     },
     async logoutUser(token: string) {
-        const isTokenInBlackList = await AuthQueryRepository.getAccessTokenFromBlackList(token);
+        try {
+            const decoded = await jwtService.verifyRefreshToken(token);
 
-        if (isTokenInBlackList) {
+            await AuthRepository.insertTokenToBlackList(token, (decoded as JwtPayload).expireAt);
+
+            return {
+                status: ResultStatus.Success,
+                data: null,
+            }
+        } catch (e) {
             return {
                 status: ResultStatus.Unauthorized,
                 data: null,
-                errorMessage: 'Unauthorized',
-                extension: [{
-                    field: 'refreshToken',
-                    message: 'Refresh token is invalid'
-                }]
+                errorMessage: 'Invalid refresh token'
             }
         }
-
-        const decoded = await jwtService.verifyRefreshToken(token);
-
-        await AuthRepository.insertTokenToBlackList(token, (decoded as JwtPayload).expireAt);
     }
 }
