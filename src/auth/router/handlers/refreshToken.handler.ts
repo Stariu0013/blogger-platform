@@ -8,10 +8,15 @@ export const handleRefreshToken = async (
     res: Response,
 ) => {
     try {
-        const {accessToken} = req.body;
+        const refreshToken = req.cookies.refreshToken;
+
+        if (!refreshToken) {
+            return res.sendStatus(HttpStatuses.UNAUTHORIZED);
+        }
+
         const user = req.user!;
 
-        const result = await authService.refreshToken(accessToken, user);
+        const result = await authService.refreshToken(refreshToken, user);
 
         if (result.status === ResultStatus.Success) {
             const {
@@ -24,7 +29,9 @@ export const handleRefreshToken = async (
                 secure: true,
             });
 
-            res.status(HttpStatuses.OK).send(newAccessToken);
+            res.status(HttpStatuses.OK).send({
+                accessToken: newAccessToken
+            });
 
             return;
         }
