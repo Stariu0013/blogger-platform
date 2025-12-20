@@ -25,7 +25,7 @@ export const jwtService = {
         }
     },
     createRefreshToken(userId: string): string {
-        const token = jwt.sign({userId}, Settings.REFRESH_TOKEN_SECRET, {expiresIn: +Settings.REFRESH_TOKEN_EXPIRATION_TIME * 1000 });
+        const token = jwt.sign({userId}, Settings.REFRESH_TOKEN_SECRET, {expiresIn: +Settings.REFRESH_TOKEN_EXPIRATION_TIME });
 
         return token;
     },
