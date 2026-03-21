@@ -13,6 +13,8 @@ const USERS_COLLECTION_NAME = "users";
 const COMMENTS_COLLECTION_NAME = "comments";
 const TOKENS_BLACK_LIST_COLLECTION_NAME = "tokens_black_list";
 const SESSIONS_COLLECTION_NAME = "sessions";
+const RATE_LIMIT_COLLECTION_NAME = "rate_limit";
+const RATE_LIMIT_COLLECTION_NAME = "rate_limit";
 
 let mongoClient: MongoClient;
 export let postsCollection: Collection<PostModel>;
@@ -21,6 +23,7 @@ export let usersCollection: Collection<UserViewModel>;
 export let commentsCollection: Collection<CommentViewModal>;
 export let blackListCollection: Collection<TokenBlackList>;
 export let sessionsCollection: Collection<DeviceSession>;
+export let rateLimitCollection: Collection<{ip: string; url: string; date: Date}>;
 
 export async function runDB(mongoUrl: string) {
     mongoClient = new MongoClient(mongoUrl);
@@ -32,6 +35,7 @@ export async function runDB(mongoUrl: string) {
     commentsCollection = db.collection(COMMENTS_COLLECTION_NAME);
     blackListCollection = db.collection(TOKENS_BLACK_LIST_COLLECTION_NAME);
     sessionsCollection = db.collection(SESSIONS_COLLECTION_NAME);
+    rateLimitCollection = db.collection(RATE_LIMIT_COLLECTION_NAME);
 
     try {
         await mongoClient.connect();
