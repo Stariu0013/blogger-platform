@@ -5,4 +5,5 @@ export enum APP_ROUTES {
     POSTS = "/api/posts",
     USERS = "/api/users",
     COMMENTS = "/api/comments",
+    SECURITY = "/api/security",
 };

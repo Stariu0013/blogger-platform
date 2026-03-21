@@ -16,7 +16,7 @@ export const logoutUserHandler = async (
             return;
         }
 
-        const result = await authService.logoutUser(refreshToken);
+        const result = await authService.logoutUser(refreshToken, req.deviceId!);
 
         if (result.status === ResultStatus.Success) {
             res.clearCookie('refreshToken', {

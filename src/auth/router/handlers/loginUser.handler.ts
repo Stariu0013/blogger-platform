@@ -11,7 +11,7 @@ export const loginUser = async (
     try {
         const {loginOrEmail, password} = req.body;
 
-        const authResult = await authService.loginUser(loginOrEmail, password);
+        const authResult = await authService.loginUser(loginOrEmail, password, req.ip || '', req.headers['user-agent']);
 
         if (authResult.status === ResultStatus.Success && authResult.data) {
             const {

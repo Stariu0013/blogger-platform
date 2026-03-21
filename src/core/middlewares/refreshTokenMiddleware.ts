@@ -4,6 +4,7 @@ import {AuthQueryRepository} from "../../auth/repositories/auth.query-repository
 import {jwtService} from "../../auth/services/jwtService";
 import {JwtPayload} from "jsonwebtoken";
 import {usersQueryRepository} from "../../users/repository/usersQueryRepository";
+import {securityQueryRepository} from "../../security/repositories/security.query-repository";
 
 export const refreshTokenMiddleware = async (
     req: Request,
@@ -33,7 +34,15 @@ export const refreshTokenMiddleware = async (
         return;
     }
 
-    const userId = (decoded as JwtPayload).userId;
+    const {userId, deviceId} = decoded as JwtPayload;
+
+    const session = await securityQueryRepository.findSessionByDeviceId(deviceId)
+
+    if (!session) {
+        res.sendStatus(HttpStatuses.UNAUTHORIZED);
+        return;
+    }
+
     const user = await usersQueryRepository.findUserById(userId);
 
     if (!user) {
@@ -43,6 +52,7 @@ export const refreshTokenMiddleware = async (
     }
 
     req.user = user;
+    req.deviceId = deviceId;
 
     next();
 };

@@ -16,7 +16,7 @@ export const handleRefreshToken = async (
 
         const user = req.user!;
 
-        const result = await authService.refreshToken(refreshToken, user);
+        const result = await authService.refreshToken(refreshToken, user, req.deviceId!);
 
         if (result.status === ResultStatus.Success) {
             const {

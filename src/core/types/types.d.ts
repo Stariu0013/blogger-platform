@@ -5,6 +5,7 @@ declare global {
     namespace Express {
         export interface Request {
             user: WithId<UserViewModel> | null
+            deviceId: string | null
         }
     }
 }

@@ -13,9 +13,12 @@ import {AuthQueryRepository} from "../repositories/auth.query-repository";
 import {UserViewModel} from "../../users/types/types.dto";
 import {AuthRepository} from "../repositories/auth.repository";
 import {JwtPayload} from "jsonwebtoken";
+import securityRepository from "../../security/repositories/security.repository";
+import {securityQueryRepository} from "../../security/repositories/security.query-repository";
+import {Settings} from "../../core/settings/settings";
 
 export const authService = {
-    async loginUser(loginOrEmail: string, password: string): Promise<Result<{ accessToken: string, refreshToken: string } | null>> {
+    async loginUser(loginOrEmail: string, password: string, ip: string, userAgent: string | undefined): Promise<Result<{ accessToken: string, refreshToken: string } | null>> {
         const userResult = await this.checkUserCredentials(loginOrEmail, password);
 
         if (userResult.status !== ResultStatus.Success) {
@@ -27,8 +30,22 @@ export const authService = {
             };
         }
 
-        const accessToken = jwtService.createJWT(userResult.data!);
-        const refreshToken = jwtService.createRefreshToken(userResult.data!._id.toString());
+        const userId = userResult.data!._id.toString()
+        const deviceId = randomUUID()
+        const lastActiveDate = new Date().toISOString()
+        const expiresAt = new Date(Date.now() + +Settings.REFRESH_TOKEN_EXPIRATION_TIME * 1000)
+
+        await securityRepository.createSession({
+            deviceId,
+            userId,
+            ip,
+            title: userAgent || 'Unknown device',
+            lastActiveDate,
+            expiresAt,
+        })
+
+        const accessToken = jwtService.createJWT(userResult.data!)
+        const refreshToken = jwtService.createRefreshToken(userId, deviceId)
 
         return {
             status: ResultStatus.Success,
@@ -195,25 +212,26 @@ export const authService = {
             extension: []
         };
     },
-    async refreshToken(token: string, user: WithId<UserViewModel>): Promise<Result<{accessToken: string, refreshToken: string} | null>> {
-        const isTokenInBlackList = await AuthQueryRepository.getAccessTokenFromBlackList(token);
+    async refreshToken(token: string, user: WithId<UserViewModel>, deviceId: string): Promise<Result<{accessToken: string, refreshToken: string} | null>> {
+        const session = await securityQueryRepository.findSessionByDeviceId(deviceId)
 
-        if (isTokenInBlackList) {
+        if (!session) {
             return {
                 status: ResultStatus.Unauthorized,
                 data: null,
                 errorMessage: 'Unauthorized',
-                extension: [{
-                    field: 'refreshToken',
-                    message: 'Refresh token is invalid'
-                }]
+                extension: [{field: 'refreshToken', message: 'Session not found'}]
             }
         }
 
-        await AuthRepository.insertTokenToBlackList(token);
+        const lastActiveDate = new Date().toISOString()
+        const expiresAt = new Date(Date.now() + +Settings.REFRESH_TOKEN_EXPIRATION_TIME * 1000)
 
-        const accessToken = jwtService.createJWT(user);
-        const refreshToken = jwtService.createRefreshToken(user._id.toString());
+        await AuthRepository.insertTokenToBlackList(token)
+        await securityRepository.updateLastActiveDate(deviceId, lastActiveDate, expiresAt)
+
+        const accessToken = jwtService.createJWT(user)
+        const refreshToken = jwtService.createRefreshToken(user._id.toString(), deviceId)
 
         return {
             status: ResultStatus.Success,
@@ -224,11 +242,12 @@ export const authService = {
             extension: []
         };
     },
-    async logoutUser(token: string) {
+    async logoutUser(token: string, deviceId: string) {
         try {
-            const decoded = await jwtService.verifyRefreshToken(token);
+            const decoded = jwtService.verifyRefreshToken(token)
 
-            await AuthRepository.insertTokenToBlackList(token, (decoded as JwtPayload).expireAt);
+            await AuthRepository.insertTokenToBlackList(token, (decoded as JwtPayload).expireAt)
+            await securityRepository.deleteSessionByDeviceId(deviceId)
 
             return {
                 status: ResultStatus.Success,
