@@ -18,7 +18,29 @@ When John wants to see his active sessions, or delete one he doesn't recognize �
 
 ## What Gets Stored
 
-Every session is saved in the `sessions` collection in MongoDB:
+Every session is saved in the `sessions` collection in MongoDB. The TypeScript types are:
+
+```typescript
+// src/security/types/security.types.ts
+
+export type DeviceSession = {
+    deviceId: string
+    userId: string
+    ip: string
+    title: string
+    lastActiveDate: string
+    expiresAt: Date
+}
+
+export type DeviceViewModel = {
+    ip: string
+    title: string
+    lastActiveDate: string
+    deviceId: string
+}
+```
+
+A stored document looks like:
 
 ```json
 {
@@ -42,11 +64,81 @@ Every session is saved in the `sessions` collection in MongoDB:
 
 ## The Endpoints
 
+Routes are registered in `src/security/router/index.ts`:
+
+```typescript
+// src/security/router/index.ts
+
+export const securityRouter = Router()
+
+securityRouter.get('/devices', refreshTokenMiddleware, getDevicesHandler)
+securityRouter.delete('/devices', refreshTokenMiddleware, deleteAllDevicesHandler)
+securityRouter.delete('/devices/:deviceId', refreshTokenMiddleware, deleteDeviceHandler)
+```
+
+All three endpoints require a valid refresh token cookie — enforced by `refreshTokenMiddleware` before the handler runs.
+
+---
+
 ### `GET /api/security/devices`
 
 > "Show me all my active sessions."
 
 **Requires:** refresh token cookie
+
+**Handler:**
+
+```typescript
+// src/security/router/handlers/get-devices.handler.ts
+
+export const getDevicesHandler = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user!._id.toString()
+
+        const result = await securityService.getDevices(userId)
+
+        if (result.status === ResultStatus.Success) {
+            res.status(HttpStatuses.OK).send(result.data)
+            return
+        }
+
+        res.sendStatus(HttpStatuses.INTERNAL_SERVER_ERROR)
+    } catch (e) {
+        res.sendStatus(HttpStatuses.INTERNAL_SERVER_ERROR)
+    }
+}
+```
+
+**Service:**
+
+```typescript
+// src/security/application/security.application.ts
+
+async getDevices(userId: string): Promise<Result<DeviceViewModel[]>> {
+    const sessions = await securityQueryRepository.findSessionsByUserId(userId)
+
+    return {
+        status: ResultStatus.Success,
+        data: sessions.map(session => ({
+            ip: session.ip,
+            title: session.title,
+            lastActiveDate: session.lastActiveDate,
+            deviceId: session.deviceId,
+        })),
+        extension: [],
+    }
+},
+```
+
+**Query repository:**
+
+```typescript
+// src/security/repositories/security.query-repository.ts
+
+async findSessionsByUserId(userId: string): Promise<DeviceSession[]> {
+    return sessionsCollection.find({userId}).toArray()
+},
+```
 
 **Example response:**
 ```json
@@ -76,6 +168,51 @@ Deletes all sessions for the user **except the current one** (identified by the 
 
 **Requires:** refresh token cookie
 
+**Handler:**
+
+```typescript
+// src/security/router/handlers/delete-all-devices.handler.ts
+
+export const deleteAllDevicesHandler = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user!._id.toString()
+        const currentDeviceId = req.deviceId!
+
+        await securityService.deleteAllOtherSessions(userId, currentDeviceId)
+
+        res.sendStatus(HttpStatuses.NO_CONTENT)
+    } catch (e) {
+        res.sendStatus(HttpStatuses.INTERNAL_SERVER_ERROR)
+    }
+}
+```
+
+**Service:**
+
+```typescript
+// src/security/application/security.application.ts
+
+async deleteAllOtherSessions(userId: string, currentDeviceId: string): Promise<Result<null>> {
+    await securityRepository.deleteAllSessionsExceptCurrent(userId, currentDeviceId)
+
+    return {
+        status: ResultStatus.Success,
+        data: null,
+        extension: [],
+    }
+},
+```
+
+**Repository:**
+
+```typescript
+// src/security/repositories/security.repository.ts
+
+async deleteAllSessionsExceptCurrent(userId: string, deviceId: string): Promise<void> {
+    await sessionsCollection.deleteMany({userId, deviceId: {$ne: deviceId}})
+}
+```
+
 **Response:** `204 No Content`
 
 ---
@@ -85,6 +222,87 @@ Deletes all sessions for the user **except the current one** (identified by the 
 > "Log out that specific device."
 
 **Requires:** refresh token cookie
+
+**Handler:**
+
+```typescript
+// src/security/router/handlers/delete-device.handler.ts
+
+export const deleteDeviceHandler = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user!._id.toString()
+        const {deviceId} = req.params
+
+        const result = await securityService.deleteDeviceSession(userId, deviceId)
+
+        if (result.status === ResultStatus.Success) {
+            res.sendStatus(HttpStatuses.NO_CONTENT)
+            return
+        }
+
+        if (result.status === ResultStatus.NotFound) {
+            res.sendStatus(HttpStatuses.NOT_FOUND)
+            return
+        }
+
+        if (result.status === ResultStatus.Forbidden) {
+            res.sendStatus(HttpStatuses.FORBIDDEN)
+            return
+        }
+
+        res.sendStatus(HttpStatuses.INTERNAL_SERVER_ERROR)
+    } catch (e) {
+        res.sendStatus(HttpStatuses.INTERNAL_SERVER_ERROR)
+    }
+}
+```
+
+**Service:**
+
+```typescript
+// src/security/application/security.application.ts
+
+async deleteDeviceSession(userId: string, targetDeviceId: string): Promise<Result<null>> {
+    const session = await securityQueryRepository.findSessionByDeviceId(targetDeviceId)
+
+    if (!session) {
+        return {
+            status: ResultStatus.NotFound,
+            data: null,
+            errorMessage: 'Session not found',
+            extension: [{field: 'deviceId', message: 'Session not found'}],
+        }
+    }
+
+    if (session.userId !== userId) {
+        return {
+            status: ResultStatus.Forbidden,
+            data: null,
+            errorMessage: 'Forbidden',
+            extension: [{field: 'deviceId', message: 'Access denied'}],
+        }
+    }
+
+    await securityRepository.deleteSessionByDeviceId(targetDeviceId)
+
+    return {
+        status: ResultStatus.Success,
+        data: null,
+        extension: [],
+    }
+},
+```
+
+**Repository:**
+
+```typescript
+// src/security/repositories/security.repository.ts
+
+async deleteSessionByDeviceId(deviceId: string): Promise<boolean> {
+    const result = await sessionsCollection.deleteOne({deviceId})
+    return result.deletedCount >= 1
+}
+```
 
 **Response:**
 - `204` — deleted successfully
@@ -103,13 +321,66 @@ Body: { loginOrEmail: "john", password: "secret" }
 Headers: User-Agent: Mozilla/5.0 Chrome/120...
 ```
 
-Server does:
-1. Checks credentials ✅
-2. Generates a fresh `deviceId = "a1b2c3d4-..."`
-3. Saves a session to MongoDB
-4. Creates a refresh token with `{ userId, deviceId }` baked in
-5. Sets the refresh token as an `httpOnly` cookie
-6. Returns an access token in the response body
+```typescript
+// src/auth/application/auth.application.ts
+
+async loginUser(
+    loginOrEmail: string,
+    password: string,
+    ip: string,
+    userAgent: string | undefined,
+): Promise<Result<{ accessToken: string; refreshToken: string } | null>> {
+    const userResult = await this.checkUserCredentials(loginOrEmail, password)
+
+    if (userResult.status !== ResultStatus.Success) {
+        return {
+            status: ResultStatus.Unauthorized,
+            data: null,
+            errorMessage: 'Unauthorized',
+            extension: [{field: 'loginOrEmail', message: 'Wrong credentials'}],
+        }
+    }
+
+    const userId = userResult.data!._id.toString()
+    const deviceId = randomUUID()                          // fresh UUID per login
+    const lastActiveDate = new Date().toISOString()
+    const expiresAt = new Date(
+        Date.now() + +Settings.REFRESH_TOKEN_EXPIRATION_TIME * 1000,
+    )
+
+    await securityRepository.createSession({              // save to sessions collection
+        deviceId,
+        userId,
+        ip,
+        title: userAgent || 'Unknown device',
+        lastActiveDate,
+        expiresAt,
+    })
+
+    const accessToken = jwtService.createJWT(userResult.data!)
+    const refreshToken = jwtService.createRefreshToken(userId, deviceId)
+
+    return {
+        status: ResultStatus.Success,
+        data: {accessToken, refreshToken},
+        extension: [],
+    }
+},
+```
+
+The refresh token embeds both `userId` and `deviceId`:
+
+```typescript
+// src/auth/services/jwtService.ts
+
+createRefreshToken(userId: string, deviceId: string): string {
+    return jwt.sign(
+        {userId, deviceId},
+        Settings.REFRESH_TOKEN_SECRET,
+        {expiresIn: +Settings.REFRESH_TOKEN_EXPIRATION_TIME},
+    )
+},
+```
 
 ```
 ← Set-Cookie: refreshToken=eyJ...
@@ -125,12 +396,60 @@ POST /api/auth/refresh-token
 Cookie: refreshToken=eyJ...
 ```
 
-Server does:
-1. Reads `deviceId` from the token
-2. Checks session exists in DB — if not, `401 Unauthorized`
-3. Updates `lastActiveDate` on the session
-4. Blacklists the old refresh token (so it can't be reused)
-5. Issues new access + refresh tokens with the **same** `deviceId`
+```typescript
+// src/auth/application/auth.application.ts
+
+async refreshToken(
+    token: string,
+    user: WithId<UserViewModel>,
+    deviceId: string,
+): Promise<Result<{accessToken: string; refreshToken: string} | null>> {
+    const session = await securityQueryRepository.findSessionByDeviceId(deviceId)
+
+    if (!session) {
+        return {
+            status: ResultStatus.Unauthorized,
+            data: null,
+            errorMessage: 'Unauthorized',
+            extension: [{field: 'refreshToken', message: 'Session not found'}],
+        }
+    }
+
+    const lastActiveDate = new Date().toISOString()
+    const expiresAt = new Date(
+        Date.now() + +Settings.REFRESH_TOKEN_EXPIRATION_TIME * 1000,
+    )
+
+    await AuthRepository.insertTokenToBlackList(token)              // old token blacklisted
+    await securityRepository.updateLastActiveDate(deviceId, lastActiveDate, expiresAt)
+
+    const accessToken = jwtService.createJWT(user)
+    const refreshToken = jwtService.createRefreshToken(user._id.toString(), deviceId)  // same deviceId
+
+    return {
+        status: ResultStatus.Success,
+        data: {accessToken, refreshToken},
+        extension: [],
+    }
+},
+```
+
+**Repository — update session in place:**
+
+```typescript
+// src/security/repositories/security.repository.ts
+
+async updateLastActiveDate(
+    deviceId: string,
+    lastActiveDate: string,
+    expiresAt: Date,
+): Promise<void> {
+    await sessionsCollection.updateOne(
+        {deviceId},
+        {$set: {lastActiveDate, expiresAt}},
+    )
+}
+```
 
 ```
 ← Set-Cookie: refreshToken=eyJ...(new)
@@ -146,10 +465,29 @@ POST /api/auth/logout
 Cookie: refreshToken=eyJ...
 ```
 
-Server does:
-1. Reads `deviceId` from the token
-2. Deletes the session from MongoDB
-3. Blacklists the refresh token
+```typescript
+// src/auth/application/auth.application.ts
+
+async logoutUser(token: string, deviceId: string) {
+    try {
+        const decoded = jwtService.verifyRefreshToken(token)
+
+        await AuthRepository.insertTokenToBlackList(token, (decoded as JwtPayload).expireAt)
+        await securityRepository.deleteSessionByDeviceId(deviceId)
+
+        return {
+            status: ResultStatus.Success,
+            data: null,
+        }
+    } catch (e) {
+        return {
+            status: ResultStatus.Unauthorized,
+            data: null,
+            errorMessage: 'Invalid refresh token',
+        }
+    }
+}
+```
 
 ```
 ← 204 No Content
@@ -167,9 +505,21 @@ DELETE /api/security/devices
 Cookie: refreshToken=eyJ...   ← this session is kept
 ```
 
-Server does:
-1. Reads `deviceId` from the token (current session)
-2. Deletes all sessions for this user **where deviceId ≠ current**
+The handler reads `req.deviceId` (set by `refreshTokenMiddleware`) and passes it to the service as the current session to preserve:
+
+```typescript
+// src/security/application/security.application.ts
+
+async deleteAllOtherSessions(userId: string, currentDeviceId: string): Promise<Result<null>> {
+    await securityRepository.deleteAllSessionsExceptCurrent(userId, currentDeviceId)
+    // ...
+}
+
+// src/security/repositories/security.repository.ts
+async deleteAllSessionsExceptCurrent(userId: string, deviceId: string): Promise<void> {
+    await sessionsCollection.deleteMany({userId, deviceId: {$ne: deviceId}})
+}
+```
 
 The other devices will get `401` next time they try to refresh — their sessions are gone.
 
@@ -177,18 +527,62 @@ The other devices will get `401` next time they try to refresh — their session
 
 ## The refreshTokenMiddleware
 
-Every endpoint that uses a refresh token cookie goes through this middleware. Here's what it checks, in order:
+Every endpoint that uses a refresh token cookie goes through this middleware. Here's the full implementation:
 
-```
-1. Is there a refreshToken cookie?          → No  → 401
-2. Is the token in the blacklist?           → Yes → 401
-3. Is the JWT signature valid?              → No  → 401
-4. Does a session exist for this deviceId? → No  → 401
-5. Does the user still exist in DB?        → No  → 401
-6. ✅ Set req.user and req.deviceId, continue
+```typescript
+// src/core/middlewares/refreshTokenMiddleware.ts
+
+export const refreshTokenMiddleware = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => {
+    const refreshToken = req.cookies['refreshToken']
+
+    if (!refreshToken) {
+        res.sendStatus(HttpStatuses.UNAUTHORIZED)    // step 1: cookie present?
+        return
+    }
+
+    const isTokenInBlackList =
+        await AuthQueryRepository.getAccessTokenFromBlackList(refreshToken)
+
+    if (isTokenInBlackList) {
+        res.sendStatus(HttpStatuses.UNAUTHORIZED)    // step 2: not blacklisted?
+        return
+    }
+
+    const decoded = jwtService.verifyRefreshToken(refreshToken)
+
+    if (!decoded) {
+        res.sendStatus(HttpStatuses.UNAUTHORIZED)    // step 3: valid JWT signature?
+        return
+    }
+
+    const {userId, deviceId} = decoded as JwtPayload
+
+    const session = await securityQueryRepository.findSessionByDeviceId(deviceId)
+
+    if (!session) {
+        res.sendStatus(HttpStatuses.UNAUTHORIZED)    // step 4: session exists in DB?
+        return
+    }
+
+    const user = await usersQueryRepository.findUserById(userId)
+
+    if (!user) {
+        res.sendStatus(HttpStatuses.UNAUTHORIZED)    // step 5: user still exists?
+        return
+    }
+
+    req.user = user           // ✅ step 6: attach user and deviceId, continue
+    req.deviceId = deviceId
+
+    next()
+}
 ```
 
-Step 4 is the new one added for this feature. It's what makes "delete all other sessions" actually work — the moment a session is deleted from MongoDB, that device's refresh token becomes invalid on the next request.
+Step 4 is what makes "delete all other sessions" actually work — the moment a session is deleted from MongoDB, that device's refresh token becomes invalid on the next request.
 
 ---
 
@@ -204,7 +598,11 @@ When you refresh your token, you get a brand new refresh token — but the `devi
 
 ## What "Unknown device" Means
 
-The `title` field comes from the `User-Agent` HTTP header, which browsers send automatically. We only read it **at login time**.
+The `title` field comes from the `User-Agent` HTTP header, which browsers send automatically. We only read it **at login time**:
+
+```typescript
+title: userAgent || 'Unknown device',
+```
 
 If there's no `User-Agent` header (e.g., a raw curl request with no headers), the title defaults to `"Unknown device"`.
 
@@ -277,23 +675,44 @@ Each one is counted **independently**. Spamming `/login` won't affect your `/reg
 
 ---
 
-### What Happens Step by Step
+### The Middleware
 
-```
-POST /auth/registration   ← request arrives
-```
+```typescript
+// src/core/middlewares/ipRateLimit.middleware.ts
 
-The `ipRateLimitMiddleware` runs first, before any validation or business logic:
+const WINDOW_MS = 10 * 1000   // 10 seconds
+const MAX_REQUESTS = 5
 
-```
-1. Read the IP from req.ip and the path from req.path
-2. Calculate the window start = now - 10 seconds
-3. Count documents in rate_limit where { ip, url, date >= windowStart }
-4. Count >= 5?  → Yes → 429, stop here
-                → No  → insert { ip, url, date: now } and continue
-```
+export const ipRateLimitMiddleware = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => {
+    try {
+        const ip = req.ip
+        const url = req.path
+        const now = new Date()
+        const windowStart = new Date(now.getTime() - WINDOW_MS)
 
-If the request gets through, it proceeds normally to validation and the handler.
+        const count = await rateLimitCollection.countDocuments({
+            ip,
+            url,
+            date: {$gte: windowStart},
+        })
+
+        if (count >= MAX_REQUESTS) {
+            res.sendStatus(HttpStatuses.TOO_MANY_REQUESTS)   // 429
+            return
+        }
+
+        await rateLimitCollection.insertOne({ip, url, date: now})
+
+        next()
+    } catch (e) {
+        res.sendStatus(HttpStatuses.INTERNAL_SERVER_ERROR)
+    }
+}
+```
 
 ---
 
@@ -308,37 +727,6 @@ At R6 (t=12s):  window = [t+2 to t+12] → R1,R2 have expired → only 3 records
 ```
 
 The window always looks back exactly 10 seconds from **right now** — it slides with every request.
-
----
-
-### The Middleware
-
-```typescript
-// src/core/middlewares/ipRateLimit.middleware.ts
-
-const WINDOW_MS = 10 * 1000   // 10 seconds
-const MAX_REQUESTS = 5
-
-export const ipRateLimitMiddleware = async (req, res, next) => {
-    const ip = req.ip
-    const url = req.path
-    const windowStart = new Date(Date.now() - WINDOW_MS)
-
-    const count = await rateLimitCollection.countDocuments({
-        ip,
-        url,
-        date: { $gte: windowStart },
-    })
-
-    if (count >= MAX_REQUESTS) {
-        res.sendStatus(429)   // Too Many Requests
-        return
-    }
-
-    await rateLimitCollection.insertOne({ ip, url, date: new Date() })
-    next()
-}
-```
 
 ---
 

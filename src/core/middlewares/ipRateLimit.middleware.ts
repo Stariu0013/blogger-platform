@@ -11,7 +11,7 @@ export const ipRateLimitMiddleware = async (
     next: NextFunction,
 ) => {
     try {
-        const ip = req.ip
+        const ip = req.ip ?? 'unknown'
         const url = req.path
         const now = new Date()
         const windowStart = new Date(now.getTime() - WINDOW_MS)

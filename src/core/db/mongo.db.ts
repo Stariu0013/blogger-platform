@@ -14,7 +14,6 @@ const COMMENTS_COLLECTION_NAME = "comments";
 const TOKENS_BLACK_LIST_COLLECTION_NAME = "tokens_black_list";
 const SESSIONS_COLLECTION_NAME = "sessions";
 const RATE_LIMIT_COLLECTION_NAME = "rate_limit";
-const RATE_LIMIT_COLLECTION_NAME = "rate_limit";
 
 let mongoClient: MongoClient;
 export let postsCollection: Collection<PostModel>;
