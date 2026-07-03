@@ -5,7 +5,7 @@ export const isIdValid = param('id')
     .isString().withMessage('id must be a string')
 ;
 
-const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
 export const validateUserInputData = [
     body('login')
