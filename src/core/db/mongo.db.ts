@@ -52,13 +52,15 @@ export async function stopDb() {
 
 export async function dropDb() {
     try {
-        const dbCollections = await mongoClient.db(Settings.DB_NAME).listCollections().toArray();
-
-        for (const collection of dbCollections) {
-            const collectionName = collection.name;
-
-            await mongoClient.db(Settings.DB_NAME).collection(collectionName).deleteMany({});
-        }
+        await Promise.all([
+            postsCollection.deleteMany({}),
+            blogsCollection.deleteMany({}),
+            usersCollection.deleteMany({}),
+            commentsCollection.deleteMany({}),
+            blackListCollection.deleteMany({}),
+            sessionsCollection.deleteMany({}),
+            rateLimitCollection.deleteMany({}),
+        ]);
     } catch(e) {
         console.error('Error in drop db: ', e);
         await stopDb();
