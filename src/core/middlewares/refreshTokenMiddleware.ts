@@ -1,10 +1,7 @@
 import {NextFunction, Request, Response} from "express";
 import {HttpStatuses} from "../types/http-statuses";
-import {AuthQueryRepository} from "../../auth/repositories/auth.query-repository";
-import {jwtService} from "../../auth/services/jwtService";
+import {authQueryRepository, jwtService, usersQueryRepository, securityQueryRepository} from "../../composition-root";
 import {JwtPayload} from "jsonwebtoken";
-import {usersQueryRepository} from "../../users/repository/usersQueryRepository";
-import {securityQueryRepository} from "../../security/repositories/security.query-repository";
 
 export const refreshTokenMiddleware = async (
     req: Request,
@@ -19,7 +16,7 @@ export const refreshTokenMiddleware = async (
         return;
     }
 
-    const isTokenInBlackList = await AuthQueryRepository.getAccessTokenFromBlackList(refreshToken);
+    const isTokenInBlackList = await authQueryRepository.getAccessTokenFromBlackList(refreshToken);
 
     if (isTokenInBlackList) {
         res.sendStatus(HttpStatuses.UNAUTHORIZED);

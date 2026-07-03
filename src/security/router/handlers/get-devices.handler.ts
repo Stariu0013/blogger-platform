@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import {securityService} from "../../application/security.application";
+import {securityService} from "../../../composition-root";
 import {ResultStatus} from "../../../core/types/result-status";
 import {HttpStatuses} from "../../../core/types/http-statuses";
 

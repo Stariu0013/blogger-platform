@@ -1,8 +1,8 @@
 import {Request, Response} from "express";
 import {HttpStatuses} from "../../../core/types/http-statuses";
 import {CommentInputModel} from "../../../comments/types";
-import {commentsRepository} from "../../../comments/repositories/comments.repository";
-import {postsQueryRepository} from "../../repositories/posts-query.repository";
+import {commentsRepository, postsQueryRepository} from "../../../composition-root";
+
 import {mapToCommentViewModal} from "../../../comments/router/mappers/map-to-comment-view-modal";
 
 export const createPostCommentHandler = async (

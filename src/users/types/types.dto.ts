@@ -11,10 +11,16 @@ export type UserViewModel = {
     passwordHash: string;
     createdAt: Date;
     emailConfirmation: UserConfirmationData;
+    passwordRecovery: UserRecoveryData;
 }
 
 type UserConfirmationData = {
     confirmationCode: string;
     isConfirmed: boolean;
     expirationDate: Date;
+}
+
+type UserRecoveryData = {
+    recoveryCode: string;
+    expirationDate: Date | null;
 }

@@ -1,34 +1,40 @@
 import {PostsQueryInput} from "../router/input/posts-query.input";
 import {WithId} from "mongodb";
 import {PostModel} from "../types/posts.dto";
-import postsRepository from "../repositories/posts.repository";
-import {BlogsService} from "../../blogs/application/blogs.application";
-import {postsQueryRepository} from "../repositories/posts-query.repository";
-import {blogsQueryRepository} from "../../blogs/repositories/blogs-query.repository";
+import {PostsRepository} from "../repositories/posts.repository";
+import {PostsQueryRepository} from "../repositories/posts-query.repository";
+import {BlogsQueryRepository} from "../../blogs/repositories/blogs-query.repository";
+import {injectable, inject} from "inversify";
+import {TYPES} from "../../core/types/di-tokens";
 
-export const PostsService = {
-    async findMany(queryDto: PostsQueryInput): Promise<{
-        items: PostModel[]
-        totalCount: number
-    }> {
-        return await postsQueryRepository.findMany(queryDto);
-    },
+@injectable()
+export class PostsService {
+    constructor(
+        @inject(TYPES.PostsRepository)      private postsRepository: PostsRepository,
+        @inject(TYPES.PostsQueryRepository) private postsQueryRepository: PostsQueryRepository,
+        @inject(TYPES.BlogsQueryRepository) private blogsQueryRepository: BlogsQueryRepository,
+    ) {}
+
+    async findMany(queryDto: PostsQueryInput): Promise<{items: PostModel[]; totalCount: number}> {
+        return this.postsQueryRepository.findMany(queryDto);
+    }
+
     async findByIdOrFail(id: string): Promise<WithId<PostModel> | null> {
-        return await postsQueryRepository.findByIdOrFail(id);
-    },
+        return this.postsQueryRepository.findByIdOrFail(id);
+    }
+
     async createPost(post: PostModel): Promise<WithId<PostModel>> {
-        const { blogId } = post;
-
-        const blogItem = await blogsQueryRepository.findByIdOrFail(blogId as string);
-
+        const {blogId} = post;
+        const blogItem = await this.blogsQueryRepository.findByIdOrFail(blogId as string);
         post.blogName = blogItem?.name || post.title;
+        return this.postsRepository.createPost(post);
+    }
 
-        return await postsRepository.createPost(post);
-    },
     async updatePost(id: string, post: PostModel): Promise<boolean> {
-        return await postsRepository.updatePost(id, post);
-    },
+        return this.postsRepository.updatePost(id, post);
+    }
+
     deletePostById(id: string): Promise<void> {
-        return postsRepository.deletePost(id);
+        return this.postsRepository.deletePost(id);
     }
 }

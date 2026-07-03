@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import {securityService} from "../../application/security.application";
+import {securityService} from "../../../composition-root";
 import {HttpStatuses} from "../../../core/types/http-statuses";
 
 export const deleteAllDevicesHandler = async (req: Request, res: Response) => {

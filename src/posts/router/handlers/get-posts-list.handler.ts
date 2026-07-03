@@ -3,7 +3,7 @@ import {Request, Response} from "express";
 import {setDefaultSortAndPagination} from "../../../core/helpers/set-default-sort-and-pagination";
 import {PostsQueryInput} from "../input/posts-query.input";
 import {mapToPostsListMappedOutput} from "../mapper/map-to-posts-list-mapped-output";
-import {postsQueryRepository} from "../../repositories/posts-query.repository";
+import {postsQueryRepository} from "../../../composition-root";
 
 export const getPostsListHandler = async (req: Request, res: Response) => {
     try {

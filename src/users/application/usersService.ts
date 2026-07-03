@@ -1,11 +1,19 @@
-import {usersRepository} from "../repository/usersRepository";
+import {UsersRepository} from "../repository/usersRepository";
 import {User} from "../instance/User.instance";
+import {injectable, inject} from "inversify";
+import {TYPES} from "../../core/types/di-tokens";
 
-export const usersService = {
+@injectable()
+export class UsersService {
+    constructor(
+        @inject(TYPES.UsersRepository) private usersRepository: UsersRepository,
+    ) {}
+
     async createUser(user: User): Promise<void> {
-        return await usersRepository.createUser(user);
-    },
+        return this.usersRepository.createUser(user);
+    }
+
     async deleteUserById(id: string): Promise<void> {
-        return await usersRepository.deleteUserById(id);
+        return this.usersRepository.deleteUserById(id);
     }
 }

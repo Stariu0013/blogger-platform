@@ -2,8 +2,8 @@ import {Request, Response} from "express";
 import {createErrorMessage} from "../../../core/utils/creaste-error-message";
 import {HttpStatuses} from "../../../core/types/http-statuses";
 import {PostInputModel} from "../../types/post-input.model";
-import {PostsService} from "../../application/posts.application";
-import {BlogsService} from "../../../blogs/application/blogs.application";
+import {postsService as PostsService} from "../../../composition-root";
+
 
 export const deletePostHandler = async (
     req: Request<{id: string}, PostInputModel, {}, {}>,

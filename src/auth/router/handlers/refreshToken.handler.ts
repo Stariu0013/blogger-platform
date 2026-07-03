@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
 import {HttpStatuses} from "../../../core/types/http-statuses";
-import {authService} from "../../application/auth.application";
+import {authService} from "../../../composition-root";
 import {ResultStatus} from "../../../core/types/result-status";
 
 export const handleRefreshToken = async (

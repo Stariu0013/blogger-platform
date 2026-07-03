@@ -1,13 +1,13 @@
 import express from "express";
 import {setupApp} from "../../src/setupApp";
-import { runDB } from "../../src/core/db/mongo.db";
+import {runDB, usersCollection} from "../../src/core/db/mongo.db";
 import {Settings} from "../../src/core/settings/settings";
 import {clearDb} from "../utils/clearDb";
 import request from "supertest";
 import {APP_ROUTES} from "../../src/core/routes";
 import {generateBasicAuthToken} from "../utils/generateBasicAuthToken";
 import {HttpStatuses} from "../../src/core/types/http-statuses";
-import {ResultStatus} from "../../src/core/types/result-status";
+import {randomUUID} from "node:crypto";
 
 describe('auth', () => {
     const app = express();
@@ -87,4 +87,150 @@ describe('auth', () => {
 
         expect(res.status).toBe(HttpStatuses.UNAUTHORIZED);
     });
+
+    describe('Password Recovery', () => {
+        describe('POST /password-recovery', () => {
+            beforeEach(async () => {
+                await clearDb(app)
+            })
+
+            it('should return 204 for unknown email (silent)', async () => {
+                const response = await request(app)
+                    .post(`${APP_ROUTES.LOGIN}/password-recovery`)
+                    .send({ email: 'unknown@gmail.com' })
+
+                expect(response.status).toBe(HttpStatuses.NO_CONTENT)
+            })
+
+            it('should return 204 and save recovery code for known email', async () => {
+                await request(app).post(APP_ROUTES.USERS).set({ authorization: authToken }).send(testUserData)
+
+                const response = await request(app)
+                    .post(`${APP_ROUTES.LOGIN}/password-recovery`)
+                    .send({ email: testUserData.email })
+
+                expect(response.status).toBe(HttpStatuses.NO_CONTENT)
+
+                const user = await usersCollection.findOne({ email: testUserData.email })
+                expect(user!.passwordRecovery.recoveryCode).toBeDefined()
+            })
+
+            it('should return 400 for invalid email format', async () => {
+                const response = await request(app)
+                    .post(`${APP_ROUTES.LOGIN}/password-recovery`)
+                    .send({ email: 'not-an-email' })
+
+                expect(response.status).toBe(HttpStatuses.BAD_REQUEST)
+            })
+        })
+
+        describe('POST /password-recovery-confirmation', () => {
+            beforeEach(async () => {
+                await clearDb(app)
+            })
+
+            it('should return 400 for non-existent recovery code', async () => {
+                const response = await request(app)
+                    .post(`${APP_ROUTES.LOGIN}/password-recovery-confirmation`)
+                    .send({ recoveryCode: randomUUID(), newPassword: 'NewPass123' })
+
+                expect(response.status).toBe(HttpStatuses.BAD_REQUEST)
+            })
+
+            it('should return 400 for expired recovery code', async () => {
+                const expiredCode = randomUUID()
+
+                await usersCollection.insertOne({
+                    login: 'expiredUser',
+                    email: 'expired@gmail.com',
+                    passwordHash: 'hash',
+                    createdAt: new Date(),
+                    emailConfirmation: {
+                        confirmationCode: randomUUID(),
+                        isConfirmed: true,
+                        expirationDate: new Date(),
+                    },
+                    passwordRecovery: {
+                        recoveryCode: expiredCode,
+                        expirationDate: new Date(Date.now() - 1000),
+                    },
+                })
+
+                const response = await request(app)
+                    .post(`${APP_ROUTES.LOGIN}/password-recovery-confirmation`)
+                    .send({ recoveryCode: expiredCode, newPassword: 'NewPass123' })
+
+                expect(response.status).toBe(HttpStatuses.BAD_REQUEST)
+            })
+
+            it('should return 400 when newPassword is too short', async () => {
+                const response = await request(app)
+                    .post(`${APP_ROUTES.LOGIN}/password-recovery-confirmation`)
+                    .send({ recoveryCode: randomUUID(), newPassword: '123' })
+
+                expect(response.status).toBe(HttpStatuses.BAD_REQUEST)
+            })
+
+            it('should return 204 and update password', async () => {
+                await request(app).post(APP_ROUTES.USERS).set({ authorization: authToken }).send(testUserData)
+
+                await request(app)
+                    .post(`${APP_ROUTES.LOGIN}/password-recovery`)
+                    .send({ email: testUserData.email })
+
+                const user = await usersCollection.findOne({ email: testUserData.email })
+                const recoveryCode = user!.passwordRecovery.recoveryCode
+
+                const response = await request(app)
+                    .post(`${APP_ROUTES.LOGIN}/password-recovery-confirmation`)
+                    .send({ recoveryCode, newPassword: 'NewPass123' })
+
+                expect(response.status).toBe(HttpStatuses.NO_CONTENT)
+            })
+
+            it('should not allow reusing the same recovery code', async () => {
+                await request(app).post(APP_ROUTES.USERS).set({ authorization: authToken }).send(testUserData)
+
+                await request(app)
+                    .post(`${APP_ROUTES.LOGIN}/password-recovery`)
+                    .send({ email: testUserData.email })
+
+                const user = await usersCollection.findOne({ email: testUserData.email })
+                const recoveryCode = user!.passwordRecovery.recoveryCode
+
+                await request(app)
+                    .post(`${APP_ROUTES.LOGIN}/password-recovery-confirmation`)
+                    .send({ recoveryCode, newPassword: 'NewPass123' })
+
+                const secondResponse = await request(app)
+                    .post(`${APP_ROUTES.LOGIN}/password-recovery-confirmation`)
+                    .send({ recoveryCode, newPassword: 'AnotherPass123' })
+
+                expect(secondResponse.status).toBe(HttpStatuses.BAD_REQUEST)
+            })
+
+            it('should allow login with new password after recovery', async () => {
+                await request(app).post(APP_ROUTES.USERS).set({ authorization: authToken }).send(testUserData)
+
+                await request(app)
+                    .post(`${APP_ROUTES.LOGIN}/password-recovery`)
+                    .send({ email: testUserData.email })
+
+                const user = await usersCollection.findOne({ email: testUserData.email })
+                const recoveryCode = user!.passwordRecovery.recoveryCode
+                const newPassword = 'NewPass123'
+
+                await request(app)
+                    .post(`${APP_ROUTES.LOGIN}/password-recovery-confirmation`)
+                    .send({ recoveryCode, newPassword })
+
+                const loginResponse = await request(app)
+                    .post(`${APP_ROUTES.LOGIN}/login`)
+                    .send({ loginOrEmail: testUserData.email, password: newPassword })
+
+                expect(loginResponse.status).toBe(HttpStatuses.OK)
+                expect(loginResponse.body.accessToken).toBeDefined()
+            })
+        })
+    })
 })

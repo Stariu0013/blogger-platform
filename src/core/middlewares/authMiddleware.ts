@@ -1,7 +1,6 @@
 import {NextFunction, Request, Response} from "express";
 import {HttpStatuses} from "../types/http-statuses";
-import {jwtService} from "../../auth/services/jwtService";
-import {usersQueryRepository} from "../../users/repository/usersQueryRepository";
+import {jwtService, usersQueryRepository} from "../../composition-root";
 
 export const authMiddleware = async (
     req: Request,

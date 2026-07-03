@@ -8,7 +8,10 @@
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "strict": true,
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "moduleResolution": "node"
     },
   "files": ["src/core/types/types.d.ts"],
   "include": ["src/**/*"],

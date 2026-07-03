@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import {HttpStatuses} from "../../../core/types/http-statuses";
 import {PostInputModel} from "../../types/post-input.model";
 import {mapToPostViewModal} from "../mapper/map-to-post-view-modal";
-import {PostsService} from "../../application/posts.application";
+import {postsService as PostsService} from "../../../composition-root";
 
 export const createPostHandler = async (
     req: Request<{}, {}, PostInputModel>,

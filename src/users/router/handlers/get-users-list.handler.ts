@@ -6,7 +6,7 @@ import {mapToUsersListMappedOutput} from "../mapper/map-to-users-list-mapped-out
 import {HttpStatuses} from "../../../core/types/http-statuses";
 import {UserViewModel} from "../../types/types.dto";
 import {WithId} from "mongodb";
-import {usersQueryRepository} from "../../repository/usersQueryRepository";
+import {usersQueryRepository} from "../../../composition-root";
 
 export const getUsersListHandler = async (
     req: Request,

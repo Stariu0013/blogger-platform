@@ -1,10 +1,10 @@
 import {Request, Response} from "express";
 import {HttpStatuses} from "../../../core/types/http-statuses";
 import {UserInputModel} from "../../types/types.dto";
-import {usersService} from "../../application/usersService";
+import {usersService} from "../../../composition-root";
 import {mapToUserViewModel} from "../mapper/map-to-user-view-model";
-import {usersQueryRepository} from "../../repository/usersQueryRepository";
-import {bcryptService} from "../../../core/helpers/bcrypt";
+import {usersQueryRepository} from "../../../composition-root";
+import {bcryptService} from "../../../composition-root";
 import {User} from "../../instance/User.instance";
 
 export const createUserHandler = async (

@@ -1,7 +1,9 @@
 import {blackListCollection, blogsCollection, commentsCollection, postsCollection, rateLimitCollection, sessionsCollection, usersCollection} from "../../core/db/mongo.db";
+import {injectable} from "inversify";
 
-class TestingRepository {
-    async deleteAllData() {
+@injectable()
+export class TestingRepository {
+    async deleteAllData(): Promise<void> {
         await postsCollection.deleteMany({});
         await blogsCollection.deleteMany({});
         await usersCollection.deleteMany({});
@@ -11,5 +13,3 @@ class TestingRepository {
         await rateLimitCollection.deleteMany({});
     }
 }
-
-export default new TestingRepository();

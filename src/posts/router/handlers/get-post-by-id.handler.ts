@@ -2,7 +2,7 @@ import {HttpStatuses} from "../../../core/types/http-statuses";
 import {Request, Response} from "express";
 import {PostInputModel} from "../../types/post-input.model";
 import {mapToPostViewModal} from "../mapper/map-to-post-view-modal";
-import {postsQueryRepository} from "../../repositories/posts-query.repository";
+import {postsQueryRepository} from "../../../composition-root";
 
 export const getPostByIdHandler = async (
     req: Request<{id: string}, PostInputModel, {}, {}>, res: Response

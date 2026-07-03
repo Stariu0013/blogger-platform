@@ -1,10 +1,13 @@
 import bcrypt from "bcrypt";
+import {injectable} from "inversify";
 
-export const bcryptService = {
-    hashPassword: (password: string) => {
-        return bcrypt.hashSync(password, 10);
-    },
-    comparePasswords: async (password: string, hash: string) => {
-        return await bcrypt.compare(password, hash);
+@injectable()
+export class BcryptService {
+    hashPassword(password: string): string {
+        return bcrypt.hashSync(password, 10)
+    }
+
+    async comparePasswords(password: string, hash: string): Promise<boolean> {
+        return bcrypt.compare(password, hash)
     }
 }

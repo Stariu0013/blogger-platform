@@ -1,11 +1,11 @@
-import BlogsRepository from "../../repositories/blogs.repository";
+
 import {HttpStatuses} from "../../../core/types/http-statuses";
 import {Request, Response} from "express";
 import {BlogModel} from "../../types/blogs.dto";
 import {setDefaultSortAndPagination} from "../../../core/helpers/set-default-sort-and-pagination";
 import {BlogsQueryInput} from "../input/blogs-query.input";
 import {mapToPostsListMappedOutput} from "../../../posts/router/mapper/map-to-posts-list-mapped-output";
-import {blogsQueryRepository} from "../../repositories/blogs-query.repository";
+import {blogsQueryRepository} from "../../../composition-root";
 
 export const getPostsByBlogIdHandler = async (
     req: Request<{id: string}, BlogModel, {}, {}>, res: Response

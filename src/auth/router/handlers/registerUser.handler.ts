@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 import {UserInputModel} from "../../../users/types/types.dto";
 import {HttpStatuses} from "../../../core/types/http-statuses";
-import {authService} from "../../application/auth.application";
+import {authService} from "../../../composition-root";
 import {ResultStatus} from "../../../core/types/result-status";
 
 export const registerUser = async (

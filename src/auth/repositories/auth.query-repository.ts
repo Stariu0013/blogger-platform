@@ -1,9 +1,10 @@
 import {blackListCollection} from "../../core/db/mongo.db";
+import {injectable} from "inversify";
 
-export const AuthQueryRepository = {
-    async getAccessTokenFromBlackList(token: string) {
+@injectable()
+export class AuthQueryRepository {
+    async getAccessTokenFromBlackList(token: string): Promise<boolean> {
         const res = await blackListCollection.findOne({accessToken: token});
-
         return !!res;
     }
 }

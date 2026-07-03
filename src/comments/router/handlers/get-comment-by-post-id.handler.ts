@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
 import {HttpStatuses} from "../../../core/types/http-statuses";
-import {commentsQueryRepository} from "../../repositories/comments.query-repository";
+import {commentsQueryRepository} from "../../../composition-root";
 import {mapToCommentViewModal} from "../mappers/map-to-comment-view-modal";
 
 export const getCommentByIdHandler = async (

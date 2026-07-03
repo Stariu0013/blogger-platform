@@ -11,6 +11,10 @@ export class User {
         isConfirmed: boolean;
         expirationDate: Date;
     }
+    passwordRecovery: {
+        recoveryCode: string;
+        expirationDate: Date | null;
+    }
 
     constructor(login: string, email: string, passwordHash: string) {
         this.login = login;
@@ -22,5 +26,9 @@ export class User {
             isConfirmed: false,
             expirationDate: add(new Date(), { hours: 1, minutes: 3 })
         };
+        this.passwordRecovery = {
+            recoveryCode: '',
+            expirationDate: null,
+        }
     }
 }

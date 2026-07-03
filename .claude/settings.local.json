@@ -1,7 +1,30 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(sed -i '' 's|import {BlogsService} from \"../../application/blogs.application\";|import {blogsService as BlogsService} from \"../../../composition-root\";|g' /Users/vladstarinec/Desktop/learning/blogger-platform/src/blogs/router/handlers/create-blog.handler.ts /Users/vladstarinec/Desktop/learning/blogger-platform/src/blogs/router/handlers/update-blog.handler.ts)",
+      "Bash(sed -i '' 's|import {BlogsService} from \"../../application/blogs.application\";||g' /Users/vladstarinec/Desktop/learning/blogger-platform/src/blogs/router/handlers/create-post-to-blog.handler.ts /Users/vladstarinec/Desktop/learning/blogger-platform/src/blogs/router/handlers/delete-blog.handler.ts)",
+      "Bash(sed -i '' 's|import {blogsQueryRepository} from \"../../repositories/blogs-query.repository\";|import {blogsService as BlogsService, blogsQueryRepository} from \"../../../composition-root\";|g' /Users/vladstarinec/Desktop/learning/blogger-platform/src/blogs/router/handlers/create-post-to-blog.handler.ts /Users/vladstarinec/Desktop/learning/blogger-platform/src/blogs/router/handlers/delete-blog.handler.ts /Users/vladstarinec/Desktop/learning/blogger-platform/src/blogs/router/handlers/get-blog-by-id.handler.ts /Users/vladstarinec/Desktop/learning/blogger-platform/src/blogs/router/handlers/get-blogs-list.handler.handler.ts)",
+      "Bash(sed -i '' 's|import BlogsRepository from \"../../repositories/blogs.repository\";||g' /Users/vladstarinec/Desktop/learning/blogger-platform/src/blogs/router/handlers/get-posts-by-blog-id.handler.ts)",
+      "Bash(sed -i '' 's|import {blogsQueryRepository} from \"../../repositories/blogs-query.repository\";|import {blogsQueryRepository} from \"../../../composition-root\";|g' /Users/vladstarinec/Desktop/learning/blogger-platform/src/blogs/router/handlers/get-posts-by-blog-id.handler.ts)",
+      "Bash(sed -i '' 's|import {PostsService} from \"../../application/posts.application\";|import {postsService as PostsService} from \"../../../composition-root\";|g' /Users/vladstarinec/Desktop/learning/blogger-platform/src/posts/router/handlers/create-post.handler.ts /Users/vladstarinec/Desktop/learning/blogger-platform/src/posts/router/handlers/update-post.handler.ts)",
+      "Bash(sed -i '' 's|import {PostsService} from \"../../application/posts.application\";|import {postsService as PostsService} from \"../../../composition-root\";|g' /Users/vladstarinec/Desktop/learning/blogger-platform/src/posts/router/handlers/delete-post.handler.ts)",
+      "Bash(sed -i '' 's|import {BlogsService} from \"../../../blogs/application/blogs.application\";||g' /Users/vladstarinec/Desktop/learning/blogger-platform/src/posts/router/handlers/delete-post.handler.ts)",
+      "Bash(sed -i '' 's|import {postsQueryRepository} from \"../../repositories/posts-query.repository\";|import {postsQueryRepository} from \"../../../composition-root\";|g' /Users/vladstarinec/Desktop/learning/blogger-platform/src/posts/router/handlers/get-post-by-id.handler.ts /Users/vladstarinec/Desktop/learning/blogger-platform/src/posts/router/handlers/get-posts-list.handler.ts)",
+      "Bash(sed -i '' 's|import {commentsQueryRepository} from \"../../../comments/repositories/comments.query-repository\";|import {commentsQueryRepository, postsQueryRepository} from \"../../../composition-root\";|g' /Users/vladstarinec/Desktop/learning/blogger-platform/src/posts/router/handlers/get-post-comments-list.handler.ts)",
+      "Bash(sed -i '' 's|import {CommentsService} from \"../../application/comments.service\";|import {commentsService as CommentsService} from \"../../../composition-root\";|g' /Users/vladstarinec/Desktop/learning/blogger-platform/src/comments/router/handlers/delete-comment-by-id.handler.ts)",
+      "Bash(sed -i '' 's|import {commentsQueryRepository} from \"../../repositories/comments.query-repository\";|import {commentsQueryRepository} from \"../../../composition-root\";|g' /Users/vladstarinec/Desktop/learning/blogger-platform/src/comments/router/handlers/delete-comment-by-id.handler.ts /Users/vladstarinec/Desktop/learning/blogger-platform/src/comments/router/handlers/get-comment-by-post-id.handler.ts)",
+      "Bash(sed -i '' 's|import {commentsRepository} from \"../../repositories/comments.repository\";|import {commentsRepository, commentsQueryRepository} from \"../../../composition-root\";|g' /Users/vladstarinec/Desktop/learning/blogger-platform/src/comments/router/handlers/update-comment-by-id.ts)",
+      "Bash(sed -i '' 's|import {commentsQueryRepository} from \"../../repositories/comments.query-repository\";||g' /Users/vladstarinec/Desktop/learning/blogger-platform/src/comments/router/handlers/update-comment-by-id.ts)",
+      "Bash(sed -i '' 's|import {usersService} from \"../../application/usersService\";|import {usersService} from \"../../../composition-root\";|g' /Users/vladstarinec/Desktop/learning/blogger-platform/src/users/router/handlers/create-user.handler.ts /Users/vladstarinec/Desktop/learning/blogger-platform/src/users/router/handlers/delete-user-by-id.handler.ts)",
+      "Bash(npx tsc *)",
+      "Bash(sed -i '' 's|import {emailService} from \"../../src/emails/service/email.service\";|import {emailService} from \"../../src/composition-root\";|g' /Users/vladstarinec/Desktop/learning/blogger-platform/__tests__/integrate/auth.integrate.test.ts)",
+      "Bash(sed -i '' 's|import {authService} from \"../../src/auth/application/auth.application\";|import {authService} from \"../../src/composition-root\";|g' /Users/vladstarinec/Desktop/learning/blogger-platform/__tests__/integrate/auth.integrate.test.ts)",
+      "Bash(git stash *)",
+      "Bash(npx jest *)",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/inversify/package.json'\\).version\\)\")",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/typescript/package.json'\\).version\\)\")",
+      "Bash(npm install *)"
     ]
   }
 }

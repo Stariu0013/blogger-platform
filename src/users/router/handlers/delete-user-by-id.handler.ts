@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 import {HttpStatuses} from "../../../core/types/http-statuses";
-import {usersService} from "../../application/usersService";
-import {usersQueryRepository} from "../../repository/usersQueryRepository";
+import {usersService} from "../../../composition-root";
+import {usersQueryRepository} from "../../../composition-root";
 
 export const deleteUserByIdHandler = async (
     req: Request<{ id: string }>,

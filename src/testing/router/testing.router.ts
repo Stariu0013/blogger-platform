@@ -1,6 +1,6 @@
 import {Router, Request, Response} from "express";
 import {APP_ROUTES} from "../../core/routes";
-import TestingRepository from "../repositories/testing.repository";
+import {testingRepository as TestingRepository} from "../../composition-root";
 import {HttpStatuses} from "../../core/types/http-statuses";
 
 const testingRouter = Router({});

@@ -2,8 +2,8 @@ import {Request, Response} from "express";
 import {BlogModel} from "../../types/blogs.dto";
 import {createErrorMessage} from "../../../core/utils/creaste-error-message";
 import {HttpStatuses} from "../../../core/types/http-statuses";
-import {BlogsService} from "../../application/blogs.application";
-import {blogsQueryRepository} from "../../repositories/blogs-query.repository";
+
+import {blogsService as BlogsService, blogsQueryRepository} from "../../../composition-root";
 
 export const deleteBlogHandler = async (
     req: Request<{id: string}, BlogModel, {}, {}>,

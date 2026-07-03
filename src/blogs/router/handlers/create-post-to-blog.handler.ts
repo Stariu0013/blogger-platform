@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import {HttpStatuses} from "../../../core/types/http-statuses";
 import {PostInputModel} from "../../../posts/types/post-input.model";
-import {BlogsService} from "../../application/blogs.application";
+
 import {mapToPostViewModal} from "../../../posts/router/mapper/map-to-post-view-modal";
-import {blogsQueryRepository} from "../../repositories/blogs-query.repository";
+import {blogsService as BlogsService, blogsQueryRepository} from "../../../composition-root";
 
 export const createPostToBlogHandler = async (
     req: Request<{id: string}, {}, PostInputModel>,

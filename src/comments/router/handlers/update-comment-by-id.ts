@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 import {HttpStatuses} from "../../../core/types/http-statuses";
-import {commentsRepository} from "../../repositories/comments.repository";
-import {commentsQueryRepository} from "../../repositories/comments.query-repository";
+import {commentsRepository, commentsQueryRepository} from "../../../composition-root";
+
 
 export const updateCommentById = async (
     req: Request<{ commentId: string }, {}, { content: string }>,

@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 import {BlogInputModel} from "../../types/blogs.input-dto";
 import {HttpStatuses} from "../../../core/types/http-statuses";
-import {BlogsService} from "../../application/blogs.application";
+import {blogsService as BlogsService} from "../../../composition-root";
 
 export const updateBlogHandler = async (
     req: Request<{id: string}, BlogInputModel, BlogInputModel, {}>,

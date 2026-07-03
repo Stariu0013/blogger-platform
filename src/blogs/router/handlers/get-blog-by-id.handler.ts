@@ -2,7 +2,7 @@ import {HttpStatuses} from "../../../core/types/http-statuses";
 import {Request, Response} from "express";
 import {BlogModel} from "../../types/blogs.dto";
 import {mapToBlogViewModal} from "../mapper/map-to-blog-view-modal";
-import {blogsQueryRepository} from "../../repositories/blogs-query.repository";
+import {blogsService as BlogsService, blogsQueryRepository} from "../../../composition-root";
 
 export const getBlogByIdHandler = async (
     req: Request<{id: string}, BlogModel, {}, {}>, res: Response

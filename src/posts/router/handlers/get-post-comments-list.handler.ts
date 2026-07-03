@@ -1,10 +1,10 @@
 import {HttpStatuses} from "../../../core/types/http-statuses";
 import {Request, Response} from "express";
 import {setDefaultSortAndPagination} from "../../../core/helpers/set-default-sort-and-pagination";
-import {commentsQueryRepository} from "../../../comments/repositories/comments.query-repository";
+import {commentsQueryRepository, postsQueryRepository} from "../../../composition-root";
 import {CommentsQueryInput} from "../../../comments/input/comments-query.input";
 import {mapToCommentListMappedOutput} from "../../../comments/router/mappers/map-to-comments-list-mapped-output";
-import {postsQueryRepository} from "../../repositories/posts-query.repository";
+
 
 export const getPostCommentsListHandler = async (
     req: Request<{postId: string}>,

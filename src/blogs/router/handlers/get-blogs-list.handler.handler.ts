@@ -3,7 +3,7 @@ import {Request, Response} from "express";
 import {BlogsQueryInput} from "../input/blogs-query.input";
 import {setDefaultSortAndPagination} from "../../../core/helpers/set-default-sort-and-pagination";
 import {mapToBlogsListMappedOutput} from "../mapper/map-to-blogs-list-mapped-output";
-import {blogsQueryRepository} from "../../repositories/blogs-query.repository";
+import {blogsService as BlogsService, blogsQueryRepository} from "../../../composition-root";
 
 export const getBlogsListHandlerHandler = async (
     req: Request,

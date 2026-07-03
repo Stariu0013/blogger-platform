@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
 import {AuthInputType} from "../../types/auth.types";
-import {authService} from "../../application/auth.application";
+import {authService} from "../../../composition-root";
 import {ResultStatus} from "../../../core/types/result-status";
 import {HttpStatuses} from "../../../core/types/http-statuses";
 

@@ -1,13 +1,20 @@
 import {Result} from "../../core/types/result-type";
 import {ResultStatus} from "../../core/types/result-status";
 import {DeviceViewModel} from "../types/security.types";
-import {securityQueryRepository} from "../repositories/security.query-repository";
-import securityRepository from "../repositories/security.repository";
+import {SecurityQueryRepository} from "../repositories/security.query-repository";
+import {SecurityRepository} from "../repositories/security.repository";
+import {injectable, inject} from "inversify";
+import {TYPES} from "../../core/types/di-tokens";
 
-export const securityService = {
+@injectable()
+export class SecurityService {
+    constructor(
+        @inject(TYPES.SecurityRepository)      private securityRepository: SecurityRepository,
+        @inject(TYPES.SecurityQueryRepository) private securityQueryRepository: SecurityQueryRepository,
+    ) {}
+
     async getDevices(userId: string): Promise<Result<DeviceViewModel[]>> {
-        const sessions = await securityQueryRepository.findSessionsByUserId(userId)
-
+        const sessions = await this.securityQueryRepository.findSessionsByUserId(userId);
         return {
             status: ResultStatus.Success,
             data: sessions.map(session => ({
@@ -17,21 +24,16 @@ export const securityService = {
                 deviceId: session.deviceId,
             })),
             extension: [],
-        }
-    },
+        };
+    }
 
     async deleteAllOtherSessions(userId: string, currentDeviceId: string): Promise<Result<null>> {
-        await securityRepository.deleteAllSessionsExceptCurrent(userId, currentDeviceId)
-
-        return {
-            status: ResultStatus.Success,
-            data: null,
-            extension: [],
-        }
-    },
+        await this.securityRepository.deleteAllSessionsExceptCurrent(userId, currentDeviceId);
+        return {status: ResultStatus.Success, data: null, extension: []};
+    }
 
     async deleteDeviceSession(userId: string, targetDeviceId: string): Promise<Result<null>> {
-        const session = await securityQueryRepository.findSessionByDeviceId(targetDeviceId)
+        const session = await this.securityQueryRepository.findSessionByDeviceId(targetDeviceId);
 
         if (!session) {
             return {
@@ -39,7 +41,7 @@ export const securityService = {
                 data: null,
                 errorMessage: 'Session not found',
                 extension: [{field: 'deviceId', message: 'Session not found'}],
-            }
+            };
         }
 
         if (session.userId !== userId) {
@@ -48,15 +50,10 @@ export const securityService = {
                 data: null,
                 errorMessage: 'Forbidden',
                 extension: [{field: 'deviceId', message: 'Access denied'}],
-            }
+            };
         }
 
-        await securityRepository.deleteSessionByDeviceId(targetDeviceId)
-
-        return {
-            status: ResultStatus.Success,
-            data: null,
-            extension: [],
-        }
-    },
+        await this.securityRepository.deleteSessionByDeviceId(targetDeviceId);
+        return {status: ResultStatus.Success, data: null, extension: []};
+    }
 }

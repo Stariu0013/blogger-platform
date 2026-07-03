@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import {BlogInputModel} from "../../types/blogs.input-dto";
 import {HttpStatuses} from "../../../core/types/http-statuses";
 import {mapToBlogViewModal} from "../mapper/map-to-blog-view-modal";
-import {BlogsService} from "../../application/blogs.application";
+import {blogsService as BlogsService} from "../../../composition-root";
 
 export const createBlogHandler = async (
     req: Request<{}, {}, BlogInputModel>,

@@ -2,36 +2,29 @@ import {commentsCollection} from "../../core/db/mongo.db";
 import {CommentsQueryInput} from "../input/comments-query.input";
 import {CommentViewModal} from "../types";
 import {ObjectId, WithId} from "mongodb";
+import {injectable} from "inversify";
 
-export const commentsQueryRepository = {
+@injectable()
+export class CommentsQueryRepository {
     async getCommentById(id: string): Promise<WithId<CommentViewModal> | null> {
-        return await commentsCollection.findOne({
-            _id: new ObjectId(id)
-        });
-    },
-    async getAllPostComments(queryDto: CommentsQueryInput, postId: string): Promise<{
-        items: WithId<CommentViewModal>[],
-        totalCount: number
-    }> {
-        const {
-            pageSize,
-            sortBy,
-            sortDirection,
-            pageNumber
-        } = queryDto;
+        return commentsCollection.findOne({_id: new ObjectId(id)});
+    }
+
+    async getAllPostComments(
+        queryDto: CommentsQueryInput,
+        postId: string,
+    ): Promise<{items: WithId<CommentViewModal>[]; totalCount: number}> {
+        const {pageSize, sortBy, sortDirection, pageNumber} = queryDto;
         const skip = pageSize * (pageNumber - 1);
 
-        const comments = await commentsCollection.find({
-            postId: new ObjectId(postId)
-        }).skip(skip).sort({
-            [sortBy]: sortDirection,
-        }).limit(pageSize).toArray();
+        const comments = await commentsCollection
+            .find({postId: new ObjectId(postId)})
+            .skip(skip)
+            .sort({[sortBy]: sortDirection})
+            .limit(pageSize)
+            .toArray();
+        const totalCount = await commentsCollection.countDocuments({postId: new ObjectId(postId)});
 
-        const totalCount = await commentsCollection.countDocuments({ postId: new ObjectId(postId)});
-
-        return {
-            items: comments,
-            totalCount
-        };
+        return {items: comments, totalCount};
     }
-};
+}

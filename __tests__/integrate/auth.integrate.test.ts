@@ -1,7 +1,7 @@
 import {MongoMemoryServer} from "mongodb-memory-server";
 import {dropDb, runDB, stopDb} from "../../src/core/db/mongo.db";
-import {emailService} from "../../src/emails/service/email.service";
-import {authService} from "../../src/auth/application/auth.application";
+import {emailService} from "../../src/composition-root";
+import {authService} from "../../src/composition-root";
 import {authSeed} from "./utils/auth.seeder";
 import {ResultStatus} from "../../src/core/types/result-status";
 
@@ -20,7 +20,7 @@ describe('AUTH INTEGRATION', () => {
             email: string, confirmationCode: string
         ) => Promise.resolve(true));
 
-        const registerUserUseCase = authService.registerUser;
+        const registerUserUseCase = authService.registerUser.bind(authService);
 
         it('should register user with correct data', async () => {
             const {
@@ -49,7 +49,7 @@ describe('AUTH INTEGRATION', () => {
         });
 
         describe('Confirm email', () => {
-            const confirmEmailUseCase = authService.confirmEmail;
+            const confirmEmailUseCase = authService.confirmEmail.bind(authService);
 
             it(`should not confirm email if user doesn't exist`, async () => {
                 const res = await confirmEmailUseCase('test');
