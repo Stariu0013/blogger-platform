@@ -65,6 +65,10 @@ export const authSeed = {
                     minutes: 30
                 }),
                 isConfirmed: isConfirmed ?? false
+            },
+            passwordRecovery: {
+                recoveryCode: randomUUID(),
+                expirationDate: null
             }
         };
 

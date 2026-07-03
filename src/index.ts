@@ -1,22 +1,28 @@
 import 'reflect-metadata'
-import express from "express";
-import {setupApp} from "./setupApp";
-import {Settings} from "./core/settings/settings";
-import { runDB } from "./core/db/mongo.db";
+import express, { NextFunction, Request, Response } from 'express'
+import { setupApp } from './setupApp'
+import { Settings } from './core/settings/settings'
+import { runDB } from './core/db/mongo.db'
 
-async function bootstrap() {
-    const app = express();
-    const PORT = Settings.PORT;
+const app = express()
 
-    app.set('trust proxy', true)
+app.set('trust proxy', true)
 
-    setupApp(app);
-    await runDB(Settings.MONGO_URL);
+let dbConnection: Promise<void> | null = null
 
-    app.listen(PORT, () => {
-        console.log(`Example app listening on port ${PORT}`);
-    });
-    return app;
+app.use((req: Request, res: Response, next: NextFunction) => {
+    if (!dbConnection) {
+        dbConnection = runDB(Settings.MONGO_URL)
+    }
+    dbConnection.then(() => next()).catch(next)
+})
+
+setupApp(app)
+
+if (!process.env.VERCEL) {
+    app.listen(Settings.PORT, () => {
+        console.log(`Example app listening on port ${Settings.PORT}`)
+    })
 }
 
-bootstrap()
+export default app
