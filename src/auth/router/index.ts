@@ -28,6 +28,6 @@ authRouter.post('/logout', refreshTokenMiddleware, logoutUserHandler);
 authRouter.post('/refresh-token', refreshTokenMiddleware, handleRefreshToken);
 authRouter.post('/registration', ipRateLimitMiddleware, validateRegistrationInputData, inputResultValidationMiddleware, registerUser);
 authRouter.post('/registration-confirmation', ipRateLimitMiddleware, isConfirmationCodeValid, inputResultValidationMiddleware, handleConfirmCode);
-authRouter.post('/password-recovery', ipRateLimitMiddleware, isRecoveryCodeValid, isEmailValidForResending, inputResultValidationMiddleware, handleRecoverPassword);
+authRouter.post('/password-recovery', ipRateLimitMiddleware, isEmailValidForResending, inputResultValidationMiddleware, handleRecoverPassword);
 authRouter.post('/password-recovery-confirmation', ipRateLimitMiddleware, isRecoveryCodeValid, isPasswordValid, inputResultValidationMiddleware, handleConfirmRecoveryPassword);
 authRouter.post('/registration-email-resending', ipRateLimitMiddleware, isEmailValidForResending, inputResultValidationMiddleware, handleResendConfirmCode);
